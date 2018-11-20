@@ -169,7 +169,6 @@ dbinfo$fars2008_2017clean$keeper_cols <- c('Number of Fatalities In Crash'='FATA
 dbinfo
 
 
-
 #----------------------------
 SRS <- function(n, dbtabname, seed=NA){
   # select row numbers to draw
@@ -181,3 +180,22 @@ SRS <- function(n, dbtabname, seed=NA){
 }
 dbtabname="fars2008_2017clean"
 sample_data <- SRS(10,"fars2008_2017clean")
+
+#----------------------------
+StratSampler <-  function(nper, dbtabname, stratcol, seed=NA){
+  if(!is.na(seed)) set.seed(seed)
+  # Get row numbers and strata values, group and sample (removing too small categories)
+  strat_rows <- dbGetQuery(con,sprintf("SELECT row_names,%s FROM %s",stratcol, dbtabname))%>% 
+    group_by_(stratcol) %>%
+    add_tally( ) %>%
+    filter(n > nper) %>%
+    sample_n(nper)
+  # Run query for selected rows
+  sampall <- dbGetQuery(con,  sprintf("select * from %s WHERE row_names in (%s)",dbtabname, paste(strat_rows$row_names, collapse=",")))
+  return(sampall)
+}
+
+
+StratSampler(5,"fars2008_2017clean","weekday") %>%
+  arrange_("weekday")
+
