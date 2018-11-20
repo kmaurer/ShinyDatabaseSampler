@@ -1,5 +1,4 @@
-library(shiny)
-library(ggplot2)
+library(tidyverse)
 
 ### Define page layout with side panel and main panel (in which we will put multiple tabs)
 shinyUI(pageWithSidebar(
@@ -27,7 +26,9 @@ shinyUI(pageWithSidebar(
     conditionalPanel(
       condition = "input.tabs == 'Sample and Summarize'",
       selectInput("dbname", "Choose a database:", 
-                  choices = c("Fatal Car Accidents"="fars2008_2017clean","American Community Survey"="acs2017clean"))
+                  choices = c("Fatal Car Accidents"="fars2008_2017clean",
+                              "American Community Survey"="acs2017clean"),
+                  selected="acs2017clean")
     ),
     
     # Sampling technique selection and random seed
@@ -36,7 +37,7 @@ shinyUI(pageWithSidebar(
       radioButtons("samptype", "Sampling Technique:",
                    list("Simple Random Sample" = "srs",
                         "Stratified Random Sample" = "strat")),
-      checkboxInput(inputId="wantseed", label="Set seed for replicable draw?")
+      checkboxInput(inputId="wantseed", label="Set seed for reproducible sample?")
     ),
 
     conditionalPanel(
@@ -92,19 +93,13 @@ shinyUI(pageWithSidebar(
       # Select Response Variable and type
       conditionalPanel(
         condition = "input.tabs == 'Visualize'",
-        uiOutput("respvar")
-        # radioButtons("resptype", "Response Variable Type:",
-        #              list("Numerical" = "num",
-        #                   "Categorical" = "categ"))
+        uiOutput("var1")
       ),
 
       # Select explanatory Variable and type
       conditionalPanel(
         condition = "input.tabs == 'Visualize' & input.nvar==2",
-        uiOutput("expvar")
-        # radioButtons("exptype", "Explanatory Variable Type:",
-        #              list("Numerical" = "num",
-        #                   "Categorical" = "categ"))
+        uiOutput("var2")
       ),
 
 #---------------------------------------------  
@@ -123,13 +118,13 @@ shinyUI(pageWithSidebar(
     tabsetPanel(
       tabPanel("Sample and Summarize", 
         h4("Data Table"),
-          dataTableOutput("view"),
-        h4("Basic Summary"),
-          verbatimTextOutput("summary")
+          dataTableOutput("view")
+        # h4("Basic Summary"),
+        #   verbatimTextOutput("summary")
       ), 
       tabPanel("Visualize", 
                h4("Basic Plot"),
-               plotOutput("MainPlot")
+               plotOutput("MainPlot",height = "600px")
       ), 
       id="tabs"
     )

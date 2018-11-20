@@ -145,28 +145,28 @@ dbinfo$fars2008_2017clean$stratchoices <-  c(Year="year", Month="month" , 'Day o
 dbinfo$acs2017clean$url <- "row_names"
 dbinfo$fars2008_2017clean$url <- "row_names"
 # variable name labels 
-dbinfo$acs2017clean$keeper_cols <- c("State"= "state",
-                                      "Individual Income (USD)"="income",
+dbinfo$acs2017clean$plot_vars <- c("State"= "state",
+                                     "Sex"="sex",
                                       "Age"="age",
-                                      "Sex"="sex",
-                                      "Employer Provides Health Insurance"="emp_hlth",
-                                      "Marital Status"="MAR",
-                                      "Marraige Year"="MARHYP",
-                                      "Employment Status"="ESR")
-dbinfo$fars2008_2017clean$keeper_cols <- c('Number of Fatalities In Crash'='FATALS',
-                             'Number of Persons Involved'='PERSONS',
-                             'Number of Vehicle Involved'='VE_TOTAL',
-                             'State (FIPS coded)'='STATE','County (FIPS coded)'='COUNTY',
-                             'GPS Latitude'='LATITUDE',  'GPS Longitude'='LONGITUD',
-                             'Crash Year'='YEAR', 'Crash Month'='MONTH',
-                             'Crash Day'='DAY','Crash Hour'='HOUR',
-                             'Day of Week'='DAY_WEEK',
-                             'Number of Drunk Drivers in Crash'='DRUNK_DR',
-                             'National Highway System'='NHS',
-                             'Atmospheric Condition'='WEATHER')
-# Indeces for 
+                                      "Marital Status"="marital",
+                                     "Individual Income (USD)"="income",
+                                     "Employer Provides Health Insurance"="emp_hlth",
+                                     "Work Commute (minutes)"="commute_mins",
+                                     "Work per week (hours)"="work_hours")
+dbinfo$fars2008_2017clean$plot_vars <- c("State" = "state",
+                                         "County" = "county",
+                                         "Latitude"="lat", 
+                                         "Longitude"="long",
+                                         "Year"="year",
+                                         "Month"="month",
+                                         "Day of Month"="day",
+                                         "Day of Week" = "weekday",
+                                         "Number of Fatalities"="fatalities",
+                                         "Number of People Involved"="people",
+                                         "Number of Vehicle Involved"="vehicles",
+                                         "Number of Drunk Drivers Involved"="drunk_drivers",
+                                         "Weather Conditions"="weather" )
 
-dbinfo
 
 
 #----------------------------
@@ -191,11 +191,11 @@ StratSampler <-  function(nper, dbtabname, stratcol, seed=NA){
     filter(n > nper) %>%
     sample_n(nper)
   # Run query for selected rows
-  sampall <- dbGetQuery(con,  sprintf("select * from %s WHERE row_names in (%s)",dbtabname, paste(strat_rows$row_names, collapse=",")))
+  sampall <- dbGetQuery(con,  sprintf("select * from %s WHERE row_names in (%s)",dbtabname, paste(strat_rows$row_names, collapse=","))) %>%
+    arrange_(stratcol)
   return(sampall)
 }
 
 
-StratSampler(5,"fars2008_2017clean","weekday") %>%
-  arrange_("weekday")
+StratSampler(5,"fars2008_2017clean","weekday")
 
