@@ -101,6 +101,8 @@ fars_clean <- FARS_all %>%
          people=PERSONS,vehicles=VE_TOTAL,
          drunk_drivers=DRUNK_DR,weather=WEATHER)
 
+#!# need to filter out lat/longs way outside usa, also need to categorize as involved/didn't involve DD
+
 str(fars_clean)
 head(fars_clean)
 # dbWriteTable(con, "fars2008_2017clean", fars_clean)
@@ -137,7 +139,7 @@ dbinfo$fars2008_2017clean$N <- as.numeric(dbGetQuery(con,"SELECT COUNT(*) FROM f
 dbinfo$acs2017clean$idx <- "row_names"
 dbinfo$fars2008_2017clean$idx <- "row_names"
 # stratification choices
-dbinfo$acs2017clean$stratchoices <- c(State="state",Sex="sex")
+dbinfo$acs2017clean$stratchoices <- c("State"="state","Sex"="sex", "Marital Status"="marital")
 dbinfo$fars2008_2017clean$stratchoices <-  c(Year="year", Month="month" , 'Day of Week'="weekday" , State="state" , 
                                # 'Weather Conditions'="WEATHER" , 'National Highway'="NHS" , 
                                'Drunk Drivers'="drunk_drivers")
@@ -197,4 +199,4 @@ StratSampler <-  function(nper, dbtabname, stratcol, seed=NA){
     arrange_(stratcol)
   return(sampall)
 }
-StratSampler(nper=100,dbtabname="acs2017clean",stratcol="state")
+data_sub <- StratSampler(nper=100,dbtabname="acs2017clean",stratcol="state")

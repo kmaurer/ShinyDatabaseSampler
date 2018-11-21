@@ -48,7 +48,7 @@ shinyUI(pageWithSidebar(
     #If simple random sample radio button selected show sample size selecter
     conditionalPanel(
       condition = "input.tabs == 'Sample and Summarize' & input.samptype == 'srs'",
-      numericInput("ndraws", "Number of Simple Random Draws from Database", 50)
+      numericInput("ndraws", "Number of Simple Random Draws from Database", 5000)
       #sliderInput("ndraws", "Number of Simple Random Draws from Database:",min=1, max=10000, value=50)
     ), 
     
@@ -62,7 +62,7 @@ shinyUI(pageWithSidebar(
     #If strat random sample radio button selected show sample size selecter
     conditionalPanel(
       condition = "input.tabs == 'Sample and Summarize' & input.samptype == 'strat'",
-      numericInput("ndrawsper", "Number of Random Draws Per Stratum from Database", 10)
+      numericInput("ndrawsper", "Number of Random Draws Per Stratum from Database", 500)
       #sliderInput("ndrawsper", "Number of Random Draws Per Strata from Database:", min=1, max=1000, value=10)
     ),
     
@@ -87,7 +87,8 @@ shinyUI(pageWithSidebar(
         condition = "input.tabs == 'Visualize'",
         radioButtons("nvar", "Number of Variables in Plot:",
                      list("Univariate" = 1,
-                          "Bivariate" = 2),inline = TRUE)
+                          "Bivariate" = 2),
+                     inline = TRUE, selected=2)
       ),   
 
       # Select Response Variable and type
@@ -101,6 +102,20 @@ shinyUI(pageWithSidebar(
         condition = "input.tabs == 'Visualize' & input.nvar==2",
         uiOutput("var2")
       ),
+
+      # Select explanatory Variable and type
+      conditionalPanel(
+        condition = "input.tabs == 'Visualize'",
+        checkboxInput(inputId="reorder_check", 
+                      label="Sort Categories in \nDescending Order?",
+                      value=TRUE)
+      ),
+
+    # conditionalPanel(
+    #   condition = "input.tabs == 'Visualize'",
+    #   actionButton("PlotButton", "Update My Plot!")
+    # ),
+
 
 #---------------------------------------------  
 

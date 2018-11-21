@@ -128,38 +128,53 @@ shinyServer(function(input, output, session) {
   ### Second Tab Functionality ###
 
   output$var1 <- renderUI({
-    selectInput("var1", "Choose a Variable",
+    input$DrawButton
+    isolate(
+      selectInput("var1", "Choose a Variable",
                 choices = dbinfo[[input$dbname]]$plot_vars )
+    )
   })
 
   output$var2 <- renderUI({
-    selectInput("var2", "Choose a Second Variable",
+    input$DrawButton
+    isolate(
+      selectInput("var2", "Choose a Second Variable",
                 choices = dbinfo[[input$dbname]]$plot_vars,
                 selected = dbinfo[[input$dbname]]$plot_vars[2])
+    )
   })
 
   # generate plot based on selection characteristics and variables
   output$MainPlot <- renderPlot({
-    p1 <- ggplot(data=sample_data()) + theme_bw()
-    data_sub <- sample_data()[,c(input$var1, input$var2)]
-    var_names <- dbinfo[[input$dbname]]$plot_vars 
+      data_sub <- sample_data()[,c(input$var1, input$var2)] 
+      var_names <- dbinfo[[input$dbname]]$plot_vars 
     if(input$nvar == 1){
       if(is.numeric(data_sub[,1])){
-        p1 + geom_histogram(aes_string(x=input$var1)) + labs(x=names(var_names)[var_names==input$var1])
+        ggplot(data=data_sub) + theme_bw() +
+          geom_histogram(aes_string(x=input$var1)) + labs(x=names(var_names)[var_names==input$var1])
       } else {
-        p1 + geom_bar(aes_string(x=input$var1))+coord_flip()+ labs(x=names(var_names)[var_names==input$var1])
+        if(input$reorder_check) data_sub[,1] <- factor(data_sub[,1],levels=names(sort(table(data_sub[,1]))))
+        ggplot(data=data_sub) + theme_bw() +
+          geom_bar(aes_string(x=input$var1))+coord_flip()+ labs(x=names(var_names)[var_names==input$var1])
       }
     }else{
       if(is.numeric(data_sub[,1]) & is.numeric(data_sub[,2])){
-        p1 + geom_point(aes_string(x=input$var2, y=input$var1)) +
+        ggplot(data=data_sub) + theme_bw() +
+          geom_point(aes_string(x=input$var2, y=input$var1)) +
           labs(x=names(var_names)[var_names==input$var2],y=names(var_names)[var_names==input$var1])
       }else if(is.character(data_sub[,1]) & is.character(data_sub[,2])){
-        p1 + geom_bar(aes_string(x=input$var1, fill=input$var2))+ coord_flip()
+        if(input$reorder_check) data_sub[,1] <- factor(data_sub[,1],levels=names(sort(table(data_sub[,1]))))
+        ggplot(data=data_sub) + theme_bw() +
+          geom_bar(aes_string(x=input$var1, fill=input$var2))+ coord_flip() +
+          labs(x=names(var_names)[var_names==input$var2],y=names(var_names)[var_names==input$var1])
       }else{
-        
-        p1 + geom_boxplot(aes_string(x=ifelse(is.numeric(data_sub[,1]),input$var2,input$var1),
+        if(input$reorder_check & !is.numeric(data_sub[,1])) data_sub[,1] <- reorder(factor(data_sub[,1]), data_sub[,2], FUN = median, na.rm=TRUE)
+        if(input$reorder_check & !is.numeric(data_sub[,2])) data_sub[,2] <- reorder(factor(data_sub[,2]), data_sub[,1], FUN = median, na.rm=TRUE)
+        ggplot(data=data_sub) + theme_bw() +
+          geom_boxplot(aes_string(x=ifelse(is.numeric(data_sub[,1]),input$var2,input$var1),
                                  y=ifelse(is.numeric(data_sub[,2]),input$var2,input$var1)),
-                          fill="lightblue") + coord_flip()
+                          fill="lightblue") + coord_flip() +
+          labs(x=names(var_names)[var_names==input$var2],y=names(var_names)[var_names==input$var1])
       }
     }
     
