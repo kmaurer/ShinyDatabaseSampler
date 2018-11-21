@@ -1,15 +1,10 @@
 ##### Server Script for ShinyDBSampler #####
-
 #------------------------------------------------------------------------------------------------------
 ### Preliminaries ###
-
 # Load all necessary libraries
+library(shiny)
 library(tidyverse)
-library(datasets)
-library(DBI)
 library(RMySQL)
-library(lubridate)
-library(ggmosaic)
 
 options(scipen=8)
 
@@ -24,7 +19,6 @@ con <- dbConnect(MySQL(),
 
 #------------------------------------------------------------------------------------------------------
 ### Sampling Functions ###
-
 
 # function to generate a SRS from a given table (with given integer indexed column)
 # n=number of draws, dbtabname=name of sql table , indexcol=unique db row identifier
@@ -58,16 +52,14 @@ StratSampler <-  function(nper, dbtabname, stratcol, seed=NA){
 
 #------------------------------------------------------------------------------------------------------
 ### Define server logic required to summarize and view the selected dataset ###
-
 shinyServer(function(input, output, session) {
 
-  ###Conditional UI items ###
-  #Create Stratification dropdown based on database
+  ## Create Stratification dropdown based on database
   output$stratcol <- renderUI({
     selectInput("stratcol", "Select Strata Variable", choices = dbinfo[[input$dbname]]$stratchoices)
   })
   
-  ### reactive data object
+  ## reactive data object - updates on DrawButton click
   sample_data <- reactive({
     input$DrawButton
     isolate(
@@ -79,12 +71,13 @@ shinyServer(function(input, output, session) {
     )
   })
   
+  ## create datatable based on sampling
   output$view <- renderDataTable({
     sample_data()
   }, options = list(aLengthMenu = c(5, 10, 25, 100), iDisplayLength = 10))
   
   
-  # handler for data download (NOTE: will not operate in Rstudio viewer, open in browser to test)
+  ## handler for data download (NOTE: will not operate in Rstudio viewer, open in browser to test)
   output$downloadData <- downloadHandler(
     filename = function(){
       paste("data-", Sys.Date(), ".csv", sep="")
@@ -94,13 +87,7 @@ shinyServer(function(input, output, session) {
     }
   )
   
-  
-  # output$summary <- renderPrint({
-  #   if (input$samptype == "srs") print(summary(sample_data()), width=500)
-  # })
-  
-  
-#   # reactive function to generate error reports if numeric fields are improperly filled (and thus sample button disabled)
+  ## reactive function to generate error reports if numeric fields are improperly filled (and thus sample button disabled)
   textboxInput <- reactive({
     samptype <- input$samptype
     ndraws <- input$ndraws
@@ -118,15 +105,15 @@ shinyServer(function(input, output, session) {
     warnmess
   })
 
-    
-#   ### Side panel object rendering ###
-#   # place message generated reactively from textboxInput() into a printable format to send to UI
+  ## place message generated reactively from textboxInput() into a printable format to send to UI
   output$numwrong <- renderText({
     textboxInput()[1]
   })
+  
+  #------------------------------------------------------------------------------------------
+  ### Visualization Tab Functionality ###
 
-  ### Second Tab Functionality ###
-
+  ## Variable 1 Selection - updated based on data upon draw
   output$var1 <- renderUI({
     input$DrawButton
     isolate(
@@ -134,7 +121,8 @@ shinyServer(function(input, output, session) {
                 choices = dbinfo[[input$dbname]]$plot_vars )
     )
   })
-
+  
+  ## Variable 2 Selection- updated based on data upon draw
   output$var2 <- renderUI({
     input$DrawButton
     isolate(
@@ -144,11 +132,12 @@ shinyServer(function(input, output, session) {
     )
   })
 
-  # generate plot based on selection characteristics and variables
+  ## generate plot based on selection characteristics and variables
   output$MainPlot <- renderPlot({
-      data_sub <- sample_data()[,c(input$var1, input$var2)] 
-      var_names <- dbinfo[[input$dbname]]$plot_vars 
+    data_sub <- sample_data()[,c(input$var1, input$var2)] 
+    var_names <- dbinfo[[input$dbname]]$plot_vars 
     if(input$nvar == 1){
+      # univariate plots (histogram/barplot)
       if(is.numeric(data_sub[,1])){
         ggplot(data=data_sub) + theme_bw() +
           geom_histogram(aes_string(x=input$var1)) + labs(x=names(var_names)[var_names==input$var1])
@@ -158,6 +147,7 @@ shinyServer(function(input, output, session) {
           geom_bar(aes_string(x=input$var1))+coord_flip()+ labs(x=names(var_names)[var_names==input$var1])
       }
     }else{
+      # bivariate plots (scatterplot/stacked-barplot/boxplots)
       if(is.numeric(data_sub[,1]) & is.numeric(data_sub[,2])){
         ggplot(data=data_sub) + theme_bw() +
           geom_point(aes_string(x=input$var2, y=input$var1)) +
@@ -172,18 +162,19 @@ shinyServer(function(input, output, session) {
         if(input$reorder_check & !is.numeric(data_sub[,2])) data_sub[,2] <- reorder(factor(data_sub[,2]), data_sub[,1], FUN = median, na.rm=TRUE)
         ggplot(data=data_sub) + theme_bw() +
           geom_boxplot(aes_string(x=ifelse(is.numeric(data_sub[,1]),input$var2,input$var1),
-                                 y=ifelse(is.numeric(data_sub[,2]),input$var2,input$var1)),
-                          fill="lightblue") + coord_flip() +
+                                  y=ifelse(is.numeric(data_sub[,2]),input$var2,input$var1)),
+                       fill="lightblue") + coord_flip() +
           labs(x=names(var_names)[var_names==input$var2],y=names(var_names)[var_names==input$var1])
       }
     }
     
   }) 
-#   
-#   ### Run at end of session ###
-#   
+  
+  #-------------------------------------------------------------------------
+  ### Run at end of session - close out DB connection
   session$onSessionEnded(function() {
     if (!is.null(con)) dbDisconnect(con)
   })
+  
 })
 
