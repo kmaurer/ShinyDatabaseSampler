@@ -167,6 +167,7 @@ dbinfo$fars2008_2017clean$plot_vars <- c("State" = "state",
                                          "Number of Drunk Drivers Involved"="drunk_drivers",
                                          "Weather Conditions"="weather" )
 
+save(dbinfo, file="ShinyDBSamplerAppInfo.Rdata")
 
 
 #----------------------------
@@ -180,12 +181,13 @@ SRS <- function(n, dbtabname, seed=NA){
 }
 dbtabname="fars2008_2017clean"
 sample_data <- SRS(10,"fars2008_2017clean")
-
+head(sample_data)
 #----------------------------
 StratSampler <-  function(nper, dbtabname, stratcol, seed=NA){
   if(!is.na(seed)) set.seed(seed)
   # Get row numbers and strata values, group and sample (removing too small categories)
-  strat_rows <- dbGetQuery(con,sprintf("SELECT row_names,%s FROM %s",stratcol, dbtabname))%>% 
+  strat_rows <- dbGetQuery(con,sprintf("SELECT %s FROM %s",stratcol, dbtabname))%>% 
+    mutate(row_names = 1:n())%>%
     group_by_(stratcol) %>%
     add_tally( ) %>%
     filter(n > nper) %>%
@@ -195,7 +197,4 @@ StratSampler <-  function(nper, dbtabname, stratcol, seed=NA){
     arrange_(stratcol)
   return(sampall)
 }
-
-
-StratSampler(5,"fars2008_2017clean","weekday")
-
+StratSampler(nper=100,dbtabname="acs2017clean",stratcol="state")

@@ -13,7 +13,7 @@ library(ggmosaic)
 
 options(scipen=8)
 
-load("dbinfolist.RData")
+load(file="ShinyDBSamplerAppInfo.Rdata")
 
 # define data base driver
 con <- dbConnect(MySQL(),
@@ -44,7 +44,8 @@ SRS <- function(n, dbtabname, seed=NA){
 StratSampler <-  function(nper, dbtabname, stratcol, seed=NA){
   if(!is.na(seed)) set.seed(seed)
   # Get row numbers and strata values, group and sample (removing too small categories)
-  strat_rows <- dbGetQuery(con,sprintf("SELECT row_names,%s FROM %s",stratcol, dbtabname))%>% 
+  strat_rows <- dbGetQuery(con,sprintf("SELECT %s FROM %s",stratcol, dbtabname))%>% 
+    mutate(row_names = 1:n())%>%
     group_by_(stratcol) %>%
     add_tally( ) %>%
     filter(n > nper) %>%
