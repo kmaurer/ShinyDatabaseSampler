@@ -1,0 +1,750 @@
+%&latex
+\documentclass[12pt]{article}
+
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{graphicx,psfrag,epsf,float,wrapfig,subfig,tabularx,ulem}
+\usepackage{enumerate}
+\usepackage{url}
+% \usepackage[utf8]{inputenc}
+% \usepackage{fullpage}
+% \usepackage{color}
+% \usepackage{mathrsfs}
+
+
+% \usepackage[section]{placeins}
+% \usepackage{multirow}
+% \usepackage{bbm}
+% \usepackage{rotating}
+% \usepackage[referable]{threeparttablex}
+\usepackage{footnote} % table footnotes
+\usepackage{multicol}
+\usepackage[usenames,dvipsnames]{xcolor}
+
+
+
+\newcommand{\distas}[1]{\mathbin{\overset{#1}{\sim}}}%
+\newcommand{\Cov}{\text{Cov}}%
+
+\newcommand{\hh}[1]{{\color{ForestGreen} #1}}
+\newcommand{\km}[1]{{\color{black} #1}}
+\newcommand{\V}[1]{\text{Var}\left(#1\right)}
+ 
+%\pdfminorversion=4
+% NOTE: To produce blinded version, replace "0" with "1" below.
+\newcommand{\blind}{1}
+\newcommand{\ktm}[1]{{\color{red} #1}} %red comments: Karsten
+
+
+\usepackage{natbib}
+\bibliographystyle{plainnat}
+
+\usepackage{hyperref}
+%-----------------------------------------------------------------------------------------------------
+%%%% Document
+%-----------------------------------------------------------------------------------------------------
+\begin{document}
+
+%-----------------------------------------------------------------------------------------------------
+%%% Title
+%-----------------------------------------------------------------------------------------------------
+\if0\blind
+{
+%opening
+\title{A \texttt{shiny} New Opportunity for Interaction with Big Data in Undergraduate Education}
+\author{Karsten Maurer$^1$, Heike Hofmann$^2$ \\$^1$Department of Statistics, Miami University \\ $^2$Department of Statistics, Iowa State University}
+  \maketitle
+} \fi
+
+\if1\blind
+{
+\title{A \texttt{shiny} New Opportunity for Interaction with Big Data in Undergraduate Education}
+\author{Author A, Author B\\ Institutions Blinded}
+  \maketitle
+} \fi
+
+
+<<config, echo=FALSE, eval=TRUE, cache=TRUE, include=FALSE>>=
+# Preliminaries
+library(ggplot2) 
+library(reshape2)
+library(psy)
+library(plyr)
+library(graphics)
+library(gridExtra)
+library(xtable)
+dat <- read.csv("SurveyResults.csv",header=T)
+
+#list of questions that were inversely coded
+flipcoded <- c(3,5,6,7,10,11)
+# recode to match positive worded response
+for (i in flipcoded){
+  dat[,i] <- 6-dat[,i]
+}
+dat$student <- 1:nrow(dat)
+#centered version
+cdat <- dat[1:12]
+for(i in 1:ncol(cdat)){
+  cdat[,i] <- cdat[,i]-3
+}
+
+names(dat) <- c("Eas1","Con1","Eng1","Eas2","Con2","Eng2",
+                "Eas3","Con3","Eng3","Eas4","Con4","Eng4",
+                "Section","Student")
+
+
+#reshape data
+meltdat <- melt(dat[,c(1:12,14)], measure.vars=c(1:12))
+meltdat$set <- factor(rep(rep(c("Ease","Concept","Engagement"),4),each=nrow(dat)),levels=c("Ease","Concept","Engagement"))
+meltdat$set4 <- rep(rep(c("Ease","Concept","Engagement"),4),each=nrow(dat))
+meltdat$set4[meltdat$variable=="Con1" | meltdat$variable=="Con3"] <- "Positive Concept"
+meltdat$set4[meltdat$variable=="Con2" | meltdat$variable=="Con4"] <- "Negative Concept"
+meltdat$set4 <- factor(meltdat$set4, levels=c("Ease","Positive Concept","Negative Concept","Engagement"))
+meltdat$centered <- as.factor(meltdat$value-3)
+meltdat$value <- as.factor(meltdat$value)
+meltdat$question.in.set <- rep(paste("Item", 1:4,sep=" "),each=3*nrow(dat))
+meltdatNoNA <- meltdat[which(meltdat$value != "NA"),]
+#create short DF of summary stats
+sumstats <- ddply(meltdat,.(variable),summarize,
+                  mean = round(mean(as.numeric(as.character(centered)), na.rm=TRUE),2),
+                    sd = round(sd(as.numeric(as.character(centered)),na.rm=T),2) )
+
+# Set up for fluctuation diagrams
+ggfluctuation <- function (table, type = "size", floor = 0, ceiling = max(table$freq, na.rm = TRUE)) 
+{
+#    .Deprecated()
+    if (is.table(table)) 
+        table <- as.data.frame(t(table))
+    oldnames <- names(table)
+    names(table) <- c("x", "y", "result")
+    table <- transform(table, x = as.factor(x), y = as.factor(y), 
+        freq = result)
+
+    if (type == "size") {
+        table <- transform(table, freq = sqrt(pmin(freq, ceiling)/ceiling), 
+            border = ifelse(is.na(freq), "grey90", ifelse(freq > 
+                ceiling, "grey30", "grey50")))
+        table[is.na(table$freq), "freq"] <- 1
+        table <- subset(table, freq * ceiling >= floor)
+    }
+
+    if (type == "size") {
+        nx <- length(levels(table$x))
+        ny <- length(levels(table$y))
+        p <- ggplot(table, aes_string(x = "x", y = "y", height = "freq", 
+            width = "freq", fill = "border")) + geom_tile(colour = "white") + 
+            scale_fill_identity() + theme(aspect.ratio = ny/nx)
+    }
+    
+    else {
+        p <- ggplot(table, aes_string(x = "x", y = "y", fill = "freq")) + 
+        geom_tile(colour = "white") + scale_fill_gradient2(expression(w[ij]), low = "red", mid="white", high = "blue")
+    }
+    p$xlabel <- oldnames[1]
+    p$ylabel <- oldnames[2]
+    p
+} 
+theme_fluct <- theme(panel.background = element_rect(fill = "white", 
+                colour = NA), panel.border = element_rect(fill = NA, 
+                colour = "grey50"), panel.grid.major = element_line(colour = "grey90", 
+                size = 0.2), panel.grid.minor = element_line(colour = "grey98", 
+                size = 0.5)) 
+
+var(cdat[,1]+cdat[,4])
+4*cov(cdat[,1],cdat[,4])/var(cdat[,1]+cdat[,4])
+cov(cdat[,1],cdat[,4])/ (sd(cdat[,1])*sd(cdat[,4]))
+2*(1- (var(cdat[,1])+var(cdat[,4]))/var(cdat[,1]+cdat[,4]))
+cor(cdat[,1],cdat[,4])
+@
+
+%-----------------------------------------------------------------------------------------------------
+%%% Abstract
+%-----------------------------------------------------------------------------------------------------
+\bigskip
+\begin{abstract}
+As the availability of truly massive data proliferates, it is enticing to incorporate these data sets into the curriculum of an undergraduate statistics course.  Major barriers exist for interacting with big data due to the computationally intense nature of working with large databases.  Difficulties include gaining access to databases, interacting with database management software, and obtaining summary statistics or manageable subsamples from the database for student use.  This paper describes a web-based software application, the \textit{Shiny Database Sampler}, which allows instructors and students to bypass these barriers using a simple point-and-click interface constructed through \texttt{R} and the \texttt{R} packages \texttt{shiny} and \texttt{RMySQL}. The Shiny Database Sampler allows instructors and students to obtain subsamples from databases, using a variety of random sampling schemes. Application and evaluation of the software indicate that students find the interface easy to use, well connected to course concepts, and engaging through access to real data.
+
+\end{abstract}
+
+\noindent%
+{\it Keywords:} Statistics Education, Shiny, Databases, Sampling
+\vfill
+
+
+
+
+%-----------------------------------------------------------
+
+\section{Introduction}
+
+Statistics education has been rapidly evolving in the past decade with respect to undergraduate course curriculum and assessment. Technology has played the role as a catalyst for many of these major changes. An important change involves how data is accessed and analyzed in the classroom. The GAISE report \citep{GAISEcollege} laid out six recommendations on how to improve the teaching of introductory statistics; two of which urge statistics instructors to ``Use technology for developing conceptual understanding and analyzing data'' and to ``Use real data''. There are many software tools and online repositories for instructors to access real data for use in the statistics classroom. These include the Data and Story Library \citep{DASL} and its Australian counterpart, OzDASL \citep{OzDASL}, the Data Archives of the Journal of Statistics Education \citep{JSErepo}, CAUSE Web Repository \citep{CAUSErepo}, and Many Eyes \citep{ManyEyes}. These repositories are wonderful for accessing many real data sets but the majority of the data sets currently available are quite small in scale.
+
+\citet{Finzer2007} argue that in curricula for introductory level statistics ``(w)hat seems to us to be missing are data sets-especially large and highly multivariate data sets-that are ripe for exploration and conjecture driven by the students' intrigue, puzzlement and desire for discovery'' \citep[p.1]{Finzer2007}. Large, real data sources are becoming increasingly available, but tend to be less easily accessible. A major contributor to this trend is the Freedom of Information Act which to ensures that non-classified data from the United States government is publicly available \citep{FOIA}. The online government resources at \url{www.data.gov/} \citep{DataGov}, \url{www.census.gov/} \citep{Census}, \url{www.nhtsa.gov/} \citep{NHTSA} and \url{www.cdc.gov/} \citep{CDC} are all locations of massive data stores. Governmental data sets contain rich information related to many socially relevant issues, making them prime candidates for engaging student interest.
+
+The goal of connecting undergraduate statistics students with big data sources requires careful consideration to implement. \citet{jacobs2009} speaks of the difficulties associated with using, ``data whose size forces us to look beyond the tried-and-true methods that are prevalent at that time'', including scaling computational tasks, avoiding sub-optimal storage schemes and parallel processing.
+
+New data technologies are needed in order to allow introductory statistics students to interact with big data sources, such as the governmental databases. This paper discusses the construction and functionality of the Shiny Database Sampler; a web-based application that allows students to pull random samples from large databases. Then, details of the implementation within a lab assignment and course project for an introductory statistics course are discussed. Lastly, the survey responses from 265 introductory statistics students whom used the Shiny Database Sampler for the lab assignment are analyzed to evaluate the software.
+
+%-----------------------------------------------------------------------------------
+\section{Shiny Database Sampler}
+
+Exposing students to larger and larger data is tricky because it becomes increasingly unwieldy to transfer, store and access data on student's personal computers. Access through remote databases and database querying languages is outside the realm of comfort for both students and instructors in most undergraduate statistics courses. The Shiny Database Sampler is a simplified graphical user interface that is designed to allow students to take appropriately sized subsets from the databases to practice small sample methodology taught in most introductory statistics courses. Working with a small static subset from the large database would let the remainder of the database go to waste. Instead the tool allows students to specify a random sampling scheme that will pull the subset from database dynamically. This is done to emphasize the role of random sampling techniques in data collection, an important concept within an introductory statistics curriculum.
+
+%%%-----------------------------------------------------------------------------------
+\subsection{Layout and Design}
+
+The Shiny Database Sampler allows the user to randomly sample subsets from remotely stored SQL databases using a point-and-click graphical user interface. The tool is available online through the link at \url{http://shiny.stat.iastate.edu/karstenm/ShinyDatabaseSampler/}. A screenshot of the graphical user interface is shown in Figure~\ref{fig:samplesummarizetab}.  %; however these sections contain different options and displays depending on which tab of the application is selected.\\
+
+The Shiny Database Sampler is a JavaScript based online application created using the \texttt{shiny} package \citep{shiny} in the statistical computing language \texttt{R} \citep{R}. The Shiny package uses \texttt{R} code files to generate the graphical user interface in a web browser that interacts with an \texttt{R} session running on the server.  It is used in combination with the \texttt{RMySQL} package \citep{RMySQL} to allow the \texttt{R} session on the server machine to query the database at the user's request via buttons in the graphical user interface.
+
+The interface was designed with a focus on the quality of the software as an educational tool. The field of software development defines six attributes contributing to software quality: functionality, reliability, usability, efficiency, maintainability, efficiency and portability (\citealt{bevan1997quality}; \citealt{manuel2002quality}). The Shiny Database Sampler is highly portable, as it can be accessed online through any JavaScript enabled web browser. The reliability and maintainability of \texttt{shiny} applications depend upon proper implementation of \texttt{R} and \texttt{shiny} on the web server. The key consideration with respect to efficiency is to optimize the database querying using proper indexing so that sample retrieval occurs almost instantaneously \citep{schwartz2012high}. 
+
+The graphical user interface contains two tabs, each broken into two panels. The layout is designed for the user to select actions in the side panel and view the results in the main panel. The functionality and usability of the \textit{Sample and Summarize} and \textit{Visualize} tabs are discussed in the following subsections. 
+
+\subsubsection{The \textit{Sample and Summarize} tab}
+%\paragraph{The ``Sample and Summarize'' tab} \hfill\newline
+
+A screenshot of the interface for the \textit{Sample and Summarize} tab is shown in Figure~\ref{fig:samplesummarizetab} below. A sidebar panel which contains all the sampling options and controls, and a main panel which contains the data table and brief summary of the sampled data set.
+
+The sidebar panel contains several fields and buttons for selecting and executing a sampling plan.  At the top of the sidebar is a drop-down menu to select the database table from which the user may take a random subsample.  The current version of the tool allows users to access the 2001-2009 Fatality Analysis Recording System accident data from the National Highway Traffic Safety Administration (\url{www.nhtsa.gov/FARS}) and the Public Use Micro Sample data from the 2000 United States Census (\url{www.census.gov/}).
+
+\begin{figure}[hbtp]
+\centering
+\includegraphics[keepaspectratio=TRUE,width=.95\textwidth]{SampleAndSummarizeWithPanelLabels.png}
+\caption[\textit{Sample and Summarize} tab screenshot.]{Shiny Database Sampler layout for \textit{Sample and Summarize} tab.} 
+\label{fig:samplesummarizetab}
+\end{figure}
+
+After selecting the database, the user can choose between taking a simple or stratified random subsample of data from the database. If the user chooses simple random sampling, then they must specify a sample size; whereas if the user chooses stratified random sampling the strata variable and number of observations per stratum need to be specified. Lastly the user sets the seed for the selection algorithm. Setting the seed may seem to contradict the intention to draw random subsets, however it was included after careful consideration. For classroom settings, it is often desirable for students to work with identical data sets for consistency of class discussion and grading. This can be accomplished by setting the same seed and the same sampling specifications. Obtaining a random sample from the databases is still possible with the additional -- but fairly trivial -- step of first randomly generating a starting seed. 
+
+Once the sampling setup is specified, the user may click the \textit{Get My Sample!} button and the randomly selected subsample of the database will be obtained and displayed in the main panel of the interface. Note that the interface only keeps track of the more recently selected subsample, which we will refer to as the \textit{active data}. Lastly, the side panel contains the button to download the active data to a local drive on the user's computer.  The data will be downloaded as comma separated values (csv) file to the default download folder on the user's computer.
+
+The main panel of the Shiny Database Sampler interface displays a data table and a basic summary of each variable in the active data. When logging into the webpage a default sample is taken and displayed until a sample of the users choosing is selected. The data table is searchable, sortable and expandable which makes it easy for the user to take a quick peek at the variable names and values in the active data. The basic summary statistics for each variable are also displayed in the main panel below the data table; those familiar with \textit{R} programming will quickly recognize this as the verbatim output of the \textit{summary} function in \textit{R}. In the case that stratified sampling was used to draw the data, the summary for each variable is broken down by strata. The displays in the main panel of the Shiny Database Sampler are not intended to be the location for any extensive analysis of the active data but instead a quick check that it was what the user intended to select. 
+
+
+\subsubsection{The \textit{Visualize} tab}
+%\paragraph{The ``Visualize'' tab} \hfill\newline
+
+The \textit{Visualize} tab of the interface is designed to construct basic plots of the active data that was drawn in the \textit{Sample and Summarize} tab. Figure~\ref{fig:visualizetab} shows a screenshot of the layout of the \textit{Visualize} tab. The sidebar panel contains fields for specifying variables and variable types that will be plotted. Univariate plots can be created by selecting the response variable from a drop-down menu containing a list of all variables and the variable type. Plots may also display bivariate relationships by additionally selecting an explanatory variable and it's variable type. 
+
+The variable types must be manually specified as numerical or categorical. Variable types are not automatically specified for variables in the database for the deliberate purpose of forcing student users to consider appropriate ways to display the data. Table~\ref{tab:defaultplottypes} shows the possible plot types that can be created based on the options selected.
+
+Once the plotting options are selected in the sidebar panel, the user may click the \textit{Make my Plot!} button to generate and display the plot in the main panel. Since the visualizations are intended only for preliminary exploration, the plots have a default construction and labeling that are not able to be customized. \\
+
+\begin{table}[hbtp]
+\centering
+\caption{Plot types supported in \textit{Visualize} tab.} 
+\begin{tabular}{lll}
+\hline
+Response Variable & Explanatory Variable & Default Plot \\
+\hline
+Numerical & None & Histogram \\
+Categorical & None & Barchart \\
+Numerical & Numerical & Scatterplot \\
+Categorical & Categorical & Stacked Barchart \\
+Numerical & Categorical & Side-by-side Boxplots \\
+\hline
+\end{tabular}
+\label{tab:defaultplottypes}
+\end{table}
+
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[keepaspectratio=TRUE,width=.99\textwidth]{Visualize.png}
+\end{center}
+\caption[\textit{Visualize} tab screenshot.]{Shiny Database Sampler layout for \textit{Visualize} tab.} 
+\label{fig:visualizetab}
+\end{figure}
+
+
+%%%-----------------------------------------------------------------------------------
+\subsection{Applications}
+\label{Applications}
+
+The Shiny Database Sampler was developed for applications in statistics education and was implemented in the initial stages of development within the curriculum of an introductory statistics course. The alpha version of the software was used within one section of Statistics 104: \textit{Introduction to Statistics} for a group lab assignment and a course project. Later, a beta version was extended to be used in a lab assignment for six more sections of the same course. These two applications demonstrate possible uses of the Shiny Database Sampler. 
+
+%-------------------------------------------------------------------------
+ \subsubsection{Lab Application Overview} 
+ \label{LabOverview}
+
+The lab that utilized the Shiny Database Sampler was designed for students to think critically about sampling approaches, then the software allowed them to treat the large database as a population upon which to conduct their mock survey. Students were asked to consider the following pair of hypothetical situations:
+
+\begin{enumerate}
+\item Suppose that our goal is to estimate the mean age of all US residents. Similar to polling organizations we have a budget that allows us to survey around 1000 people. To collect our sample we decide to take a simple random sample of 1040 US residents.
+
+\item Suppose now that our goal has changed.  Now we wish to investigate the association between age and state of residency. We want to compare the median ages for different states. We still have a budget that allows us to survey of 1040 people. To collect our sample we decide to take a stratified random sample of 20 residents from each state in the United States plus the District of Columbia and Puerto Rico. 
+\end{enumerate}
+
+In each scenario students were asked to discuss the choice of sampling scheme and to identify potential problems or difficulties. The students used the Shiny Database Sampler tool to obtain a sample from the database containing a 1\% microsample of the 2010 U.S. Census, from which they estimated mean and median age of U.S. residents. This lab was written to ensure that sampling concepts were the primary focus, with the Shiny Database Sampler acting in a supporting role. In order to avoid (sporadic) clicking of buttons to obtain samples without ever stopping to consider why the sampling approach matters, we intentionally designed the assignment to invite students to carefully consider sampling options {\it before} using the tool. The complete lab assignment can be found in Appendix \ref{labappend}. 
+
+
+\subsubsection{Capstone Project Application Overview} 
+\label{ProjectOverview} 
+
+A second application of the Shiny Database Sampler was as an optional data source for a capstone project for students of Stat 104. Students were required to work in small groups to complete a capstone project that took a statistical approach to answering a question of their choosing. In order to accommodate students' interests in the subject matter of the project, groups were allowed to pick their own data source. The only specific requirement for the project was a written report that explained the collection of bivariate data and an analysis of the association -- included the appropriate plots, inference and interpretations to answer their question of interest.
+
+Six of the groups chose to run a mock survey, using the databases available through the Shiny Database Sampler as a stand-in for a large population. These groups were required to demonstrate a strong argument for the sampling plan they used within the Shiny Database Sample. For instance, if a group wanted to know if the proportion of fatal accidents involving a drunk driver was higher in California than in Iowa; as part of the report they needed to argue why taking a stratified random sample of 100 fatal accidents per state would produce better information to answer their question than a simple random sample. Groups that gathered random samples from the Census and Accidents databases knew that they had gathered information from real life sources and they seemed genuinely engaged in the results of their projects. 
+ 
+%%-----------------------------------------------------------------------------------
+\subsection{User Survey for Software Evaluation}
+
+As discussed above, the Shiny Database Sampler was designed for student use in course assignments. The quality of the software was initially assessed using a pluralistic walk through \citep{nielsen1994}, where the developer met iteratively with both statistical novices and experts to test the functionality of the early versions of the software. The software improvements that followed this inspection created the beta version of the Shiny Database Sampler that was ready for student use.
+
+The second stage of evaluation for the Shiny Database Sampler was a user survey to learn student opinions about their experience from using the software during the lab assignment described above. Specifically, we are interested in three aspects of the software: we want to know if students find the tool easy to operate, if they see the connection to sampling concepts and if they find the data engaging. Exploring the student responses on these three topics of interest helps us to assess the quality of the Shiny Database Sampler as an educational software.
+
+The ease of use of the Shiny Database Sampler is an considered an important attribute from both an educational psychology and a software development viewpoint. Cognitive load theory postulates that human capacity to process information is limited and that learning is composed of \textit{extraneous load}, effort to overcome obstructions to new knowledge, and \textit{germane load}, effort used to form new schema and integrate ideas with existing knowledge. \citet{muller2008} explain that ``Finding ways to increase germane load and minimize extraneous load has been a central pursuit of researchers under this paradigm." Application of cognitive load theory is extended to the setting of software in \textit{human centered design} \citep{oviatt2006}. The goal is to make interfaces for educational technologies intuitive and easy to operate in order to minimize the extraneous load; thus allowing more mental resources to be devoted to developing and integrating new knowledge. The intuitive construction of the user interface is an important component to software development, where the usability of a tool is defined by its learnability, understandability and operability \citep{manuel2002quality}.
+
+Active learning requires a high cognitive load, and if prior knowledge is lacking more scaffolding is necessary to support learning \citep{muller2008}. Since sampling concepts are typically new for students, it is important that students clearly recognize sampling concepts in the interface; allowing it to be used as part of an assignment that is scaffolded for active learning. If students are able to identify the role of the Shiny Database Sampler as a tool for learning about random sampling, it is more easily integrated into the learning process.
+
+Finally, assessing student engagement with the data sources in the Shiny Database Sampler is important because higher student engagement is linked to higher academic performance and learning \citep{carini2006student}. The GAISE guidelines recommend that technological tools should be used to help teach statistical concepts and that the use of real data is important for student engagement, hence we focus on these topics \citep{GAISEcollege}. \citet{Neumann2013} found that students consider real data more interesting and engaging. The hope is that students using the Shiny Database Sampler will find the real, nationally collected, governmental data sources engaging.
+
+Student responses were collected in an anonymous survey following the group lab assignment -- as described in Section~\ref{LabOverview} -- that required students of an introductory statistics course, Stat 104, at Iowa State University to use the Shiny Database Sampler tool. Six sections of Stat 104 students were surveyed. The students were informed that the survey was not required and that no penalties or rewards were affiliated with its completion. Of the 320 students attending the lab, 265 completed the survey. 
+
+%-------------------------------------------------------------------------
+ \subsubsection{Survey Description} 
+
+After completing the lab assignment, students were asked to respond to a survey consisting of twelve statements (referred to as \textit{items} in the following, see Table~\ref{tab:surveyquestions} for an overview). For each statement, students were asked for feedback on their level of agreement on a Likert scale from strongly disagree to strongly agree. 
+The twelve items were designed to assess student opinion within three topics of four items each: ease of use, connection to sampling concepts, and engagement with the census data.  We will refer to these as the \textit{Ease}, \textit{Concept} and \textit{Engagement} item sets.  For each group of four items, two were worded positively and two were worded negatively. Introducing negation with half of the items was done to reduce the response bias associated with \textit{acquiescence} -- the tendency to respond positively irrespective of the item content due \citep{Furnham1986}. Responses were scored as -2 (strongly disagree), -1 (disagree), 0 (neutral), 1 (agree), 2 (strongly agree).  Responses for negatively worded items were reverse-scored for the purposes of analysis.\\
+
+\begin{table}[hbtp]
+\centering
+\caption[Survey items and response summaries.]{Survey items and response summaries \textit{after} reverse-scoring (RS).}
+\small
+% \scalebox{0.9}{
+\begin{tabular}{ccp{3.4in}crr}
+  \hline
+Topic Set & ID & Item & Polarity & Mean & SD\\[3pt]
+  \hline
+Ease & 1 & \it I found the web tool easy to use & $+$ & \Sexpr{sprintf("%.2f", sumstats[1,2])} & \Sexpr{sprintf("%.2f", sumstats[1,3])}\\  
+ & 2 & \it The layout of the web tool was intuitive & $+$  & \Sexpr{sprintf("%.2f", sumstats[4,2])} & \Sexpr{sprintf("%.2f", sumstats[4,3])}\\  
+ & 3 & \it Using the web tool was difficult & $-$  & \Sexpr{sprintf("%.2f", sumstats[7,2])}& \Sexpr{sprintf("%.2f", sumstats[7,3])}\\  
+ & 4 & \it Learning to use the web tool was hard & $-$  & \Sexpr{sprintf("%.2f", sumstats[10,2])} & \Sexpr{sprintf("%.2f", sumstats[10,3])}\\  [3pt]
+  \hline
+Concept & 1 & \it The web tool helped me understand sampling concepts & $+$  & \Sexpr{sprintf("%.2f", sumstats[2,2])}& \Sexpr{sprintf("%.2f", sumstats[2,3])}\\   
+& 2 & \it I understand sampling ideas less after using the web tool & $-$  & \Sexpr{sprintf("%.2f", sumstats[5,2])}& \Sexpr{sprintf("%.2f", sumstats[5,3])}\\  
+& 3 & \it Sampling techniques are clearer after using the web tool & $+$  & \Sexpr{sprintf("%.2f", sumstats[8,2])}& \Sexpr{sprintf("%.2f", sumstats[8,3])}\\  
+& 4 & \it The web tool made me less sure how to randomly sample & $-$  & \Sexpr{sprintf("%.2f", sumstats[11,2])}& \Sexpr{sprintf("%.2f", sumstats[11,3])}\\  
+   \hline
+Engagement & 1 & \it I did not enjoy working with the Census data & $-$  & \Sexpr{sprintf("%.2f", sumstats[3,2])} & \Sexpr{sprintf("%.2f", sumstats[3,3])}\\  
+& 2 & \it I thought the Census data was boring & $-$   & \Sexpr{sprintf("%.2f", sumstats[6,2])}& \Sexpr{sprintf("%.2f", sumstats[6,3])}\\  
+& 3 & \it Knowing that the Census data was from real people made it more interesting & $+$  & \Sexpr{sprintf("%.2f", sumstats[9,2])}& \Sexpr{sprintf("%.2f", sumstats[9,3])}\\   
+& 4 & \it I liked analyzing the Census data & $+$  & \Sexpr{sprintf("%.2f", sumstats[12,2])} & \Sexpr{sprintf("%.2f", sumstats[12,3])}\\   
+  \hline
+\end{tabular}
+% }
+\label{tab:surveyquestions}
+\end{table}
+
+\normalsize
+
+From Table~\ref{tab:surveyquestions} we see that all response averages are positive after reverse-scoring. With the Ease items this indicates that students tend to find the tool relatively easy to operate. For frame of reference, we assume that students are comparing the difficulty of use with other educational technologies and webpages they have encountered in the past; in particular the \texttt{JMP} software used previously on their Stat 104 labs and homework. Students also tend to respond to Concept items in a manner that is affirmative that the tool connects them to sampling concepts. Students' responses are near to neutral for most items about engagement with the census data, with the exception of Engagement item 3.  The phrasing of this question seems to have led students to reconsider their engagement level and led to a consistently more positive attitude.
+
+%-------------------------------------------------------------------------
+\subsubsection{Assessment of Internal Consistency for Item Topic Sets} 
+
+The goal for this survey is to use the responses to sets of items to infer student opinions about the underlying topic of each set.  It is reasonable to aggregate the responses over entire questions sets if we can show that items within each set are measuring the same latent topic. We use fluctuation diagrams and Cronbach's $\alpha$ \citep{cronbach:51} to assess this internal consistency. 
+
+A fluctuation diagram is the visual analog of the contingency table, displaying frequency of each unique responses combination as the area of blocks on the bivariate grid containing all possible pairs of response values. A fluctuation diagram with large blocks on the diagonal indicates strong agreement or {\it internal consistency} between responses of the two items.  Figure~\ref{fig:fluctuationDiagrams} contains fluctuation diagrams for all item pairs within topic sets.    
+We notice that most pairs of responses fall heavily along the diagonal and are primarily in the upper right of each diagram. This indicates that most items within sets have strong agreement and that the response values are generally neutral to positive for all items (after reverse-scoring the negative statements).
+For the item pairs in the Concept topic set we see that fluctuation diagrams have slightly larger off-diagonal trends than items within the other two sets, which indicates a lower level of internal consistency for Concept items than in the other two topic sets. 
+
+<<fluctuationDiagrams, echo=F, message=FALSE, include=T,eval=T,fig.width=12, fig.height=6, out.width='.98\\linewidth', fig.pos='hbt',fig.align='center',tidy=F, cache=TRUE, fig.show='hold', fig.cap='Fluctuation diagrams of all item pairs within topic sets.', fig.scap='Fluctuation diagrams of item pairs within topic sets.'>>=
+ 
+#ease of use
+e12 <- ggfluctuation(table(cdat$q1,cdat$q4)) +
+  xlab("Ease Item 1") + ylab("Ease Item 2") + theme_fluct
+e13 <- ggfluctuation(table(cdat$q1,cdat$q7)) + xlab("Ease Item 1") + 
+  ylab("Ease Item 3") + theme_fluct
+e14 <- ggfluctuation(table(cdat$q1,cdat$q10)) + xlab("Ease Item 1") + 
+  ylab("Ease Item 4") + theme_fluct
+e23 <- ggfluctuation(table(cdat$q4,cdat$q7)) + xlab("Ease Item 2") + 
+  ylab("Ease Item 3") + theme_fluct
+e24 <- ggfluctuation(table(cdat$q4,cdat$q10)) + xlab("Ease Item 2") + 
+  ylab("Ease Item 4") + theme_fluct
+e34 <- ggfluctuation(table(cdat$q7,cdat$q10)) + xlab("Ease Item 3") + 
+  ylab("Ease Item 4") + theme_fluct
+
+#concept
+c12 <- ggfluctuation(table(cdat$q2,cdat$q5)) +
+  xlab("Concept Item 1") + ylab("Concept Item 2") + theme_fluct
+c13 <- ggfluctuation(table(cdat$q2,cdat$q8)) +
+  xlab("Concept Item 1") + ylab("Concept Item 3") + theme_fluct
+c14 <- ggfluctuation(table(cdat$q2,cdat$q11)) +
+  xlab("Concept Item 1") + ylab("Concept Item 4") + theme_fluct
+c23 <- ggfluctuation(table(cdat$q5,cdat$q8)) +
+  xlab("Concept Item 2") + ylab("Concept Item 3") + theme_fluct
+c24 <- ggfluctuation(table(cdat$q5,cdat$q11)) +
+  xlab("Concept Item 2") + ylab("Concept Item 4") + theme_fluct
+c34 <- ggfluctuation(table(cdat$q8,cdat$q11)) +
+  xlab("Concept Item 3") + ylab("Concept Item 4") + theme_fluct
+
+#Engagement with cdata
+d12 <- ggfluctuation(table(cdat$q3,cdat$q6)) +
+  xlab("Engagement Item 1") + ylab("Engagement Item 2") + theme_fluct
+d13 <- ggfluctuation(table(cdat$q3,cdat$q9)) +
+  xlab("Engagement Item 1") + ylab("Engagement Item 3") + theme_fluct
+d14 <- ggfluctuation(table(cdat$q3,cdat$q12)) +
+  xlab("Engagement Item 1") + ylab("Engagement Item 4") + theme_fluct
+d23 <- ggfluctuation(table(cdat$q6,cdat$q9)) +
+  xlab("Engagement Item 2") + ylab("Engagement Item 3") + theme_fluct
+d24 <- ggfluctuation(table(cdat$q6,cdat$q12)) +
+  xlab("Engagement Item 2") + ylab("Engagement Item 4") + theme_fluct
+d34 <- ggfluctuation(table(cdat$q9,cdat$q12)) +
+  xlab("Engagement Item 3") + ylab("Engagement Item 4") + theme_fluct
+
+grid.arrange(e12,e13,e14,e23,e24,e34,
+             c12,c13,c14,c23,c24,c34,
+             d12,d13,d14,d23,d24,d34,
+             nrow=3) 
+@
+
+
+
+Cronbach's $\alpha$ measures internal consistency within an item set by comparing the sum of individual response variances to the variance of the sum of the responses. It is defined as follows
+%
+\begin{equation} \label{eq:alpha}
+\alpha = K/(K-1) \cdot \left(1 - \left . \sum_{i=1}^K \V{Y_i} \right /  \V{\sum_{j=1}^K Y_j}\right),
+\end{equation}
+%
+where $Y_i$ denotes the response on the $i^{\text{th}}$ survey item ($ i = 1,... , K$), and $K$ is the number of survey items considered for internal consistency. Generally, $K=4$ for the item sets of this survey.
+Cronbach's $\alpha$ reaches a maximal value of 1, if there is perfect agreement between items (i.e. all responses to the same item set are identical). In the case that items sets are independent, the internal consistency is measured as $\alpha = 0 $. Cronbach's $\alpha$ can be negative in the situation of consistent \textit{disagreement} between responses and will approach negative infinity if there is perfect disagreement between items.  See appendix~\ref{appendCronbach} for details on the bounds for Cronbach's $\alpha$. 
+
+\citet{Nunnally1978} propose that a Cronbach's $\alpha$ of 0.7 or above should be considered as an indication of ``modest reliability''.   \citet{GeorgeMallery2003} provide the commonly used extended scale, displayed in Table~\ref{GMAlphaScale}, for interpreting internal consistency based on Cronbach's $\alpha$. \\
+
+\begin{table}[hbtp]
+\centering
+\caption{Extended scale for Cronbach's $\alpha$  (George and Mallery, 2003).} 
+\begin{tabular}{ll}
+\hline 
+Internal Consistency & Range \\
+\hline
+Excellent &  $[ 0.9 , 1.0 ]$ \\
+Good & $[ 0.8 , 0.9 )$ \\
+Acceptable & $[ 0.7 , 0.8 ) $\\
+Questionable & $[ 0.6 , 0.7 )$ \\
+Poor & $[ 0.5 , 0.6 )$ \\
+Unacceptable & $( -\infty, 0.5 )$ \\
+\hline
+\end{tabular}
+\label{GMAlphaScale}
+\end{table}
+
+Since Cronbach's $\alpha$ is a sample estimate for the internal consistency of an item set, it experiences sampling variability. Under the assumption of normally distributed responses, Cronbach's $\alpha$ follows approximately an $F_{\nu_1,\nu_2}$, where $\nu_1 = n-1$ and $\nu_2$ is based on a function of the eigenvalues from the quadratic linear combination of the roots of the variance matrix \citep{KistnerMuller2004}. Assuming normality to construct confidence intervals for the true internal consistency of item sets would be questionable for the responses in this survey, so we have elected to bootstrap the intervals instead.
+
+Table~\ref{cronbachstuff} displays the point estimates and 95\% central bootstrap intervals for Cronbach's $\alpha$ for each item set from the student survey.  The intervals were created using quantiles of the Cronbach's $\alpha$ values from 10,000 bootstrap resamples. 
+ The results indicate modest levels of internal consistency for Ease and Engagement item sets, and a lower level for the Concept item set. This is in agreement with the findings based on the fluctuation diagrams in Figure~\ref{fig:fluctuationDiagrams}. \\
+
+<<cronbach,echo=F, message=FALSE, include=F,eval=F,fig.width=7.5, fig.height=5, out.width='.49\\linewidth', fig.pos='hbt',fig.align='center',tidy=F, cache=TRUE, fig.show='hold', results='asis'>>=
+# coefficientalpha package uses "robust alpha" but does not tell where the estimate comes from
+#library(coefficientalpha)
+
+bootstrapalphaci <- function(df,nboot){
+  dfnoNA <- na.omit(df)
+  bootalphas <- rep(NA,nboot)
+  for(i in 1:nboot){
+    bootdat <- dfnoNA[sample(1:nrow(dfnoNA),nrow(dfnoNA),replace=TRUE), ]
+    bootalphas[i] <- cronbach(bootdat)$alpha
+  }
+  return(quantile(bootalphas,c(.025,.975)))
+}
+
+set.seed(102)
+#comment out because of odd printing to latex file
+#caease <- cronbach(cdat[,c(1,4,7,10)])
+#bootstrapalphaci(cdat[,c(1,4,7,10)],10000)
+#cacon <-cronbach(cdat[,c(2,5,8,11)])
+#bootstrapalphaci(cdat[,c(2,5,8,11)],10000)
+#caeng <-cronbach(cdat[,c(3,6,9,12)])
+#bootstrapalphaci(cdat[,c(3,6,9,12)],10000)
+
+CronbachResults <- data.frame(Set=c("Ease","Concept","Engagement") ,
+                              alpha=c(0.696, 0.528, 0.719),
+                              Lower=c(0.613,0.410,0.643), 
+                              Upper=c(0.759,0.637,0.776) )
+colnames(CronbachResults) <- c("Set" , "alpha", "Lower Bound", "Upper Bound")
+print(xtable(CronbachResults,caption = 'Cronbach\'s alpha for each item set with 95\\% central bootstrap confidence interval', digits=3, label = 'cronbachstuff'), 
+      include.rownames=FALSE)
+@
+
+% latex table generated in R 3.0.2 by xtable 1.7-3 package
+% Tue Nov 04 15:05:46 2014
+\begin{table}[hbtp]
+\centering
+\caption[Cronbach's $\alpha$ estimates for item sets.]{Cronbach's $\alpha$ estimates for each item set with 95\% central bootstrap confidence interval based on 10,000 bootstrap samples.} 
+\begin{tabular}{lrc}
+  \hline
+Set & Estimate & 95\% Confidence Interval \\ 
+  \hline
+Ease & 0.70 & (0.613 , 0.759)\\ 
+  Concept & 0.53 & (0.410 , 0.637) \\ 
+  Engagement & 0.72 & (0.643 , 0.776) \\ 
+   \hline
+\end{tabular}
+\label{cronbachstuff}
+\end{table}
+
+\subsubsection{Assessment of Polarity Issues}  
+
+We next turn our attention to the polarity of the survey items; specifically we consider that positive and reverse-scored negative items may elicit a different responses. The survey contained six unique item pairs based on topic and polarity combinations. Figure~\ref{fig:OverallSetBars} compares the distribution of responses from positive and negative item pairs within topics.  We see strong similarity between positive and reverse-scored negative items in response distributions for the Ease and Engagement item sets. The Concept item set however displays a noticeable difference in response distributions from each polarity.  In particular, we see that students are more neutral toward the positively worded questions. This polarity difference in student responses explains the lower internal consistency measured by Cronbach's $\alpha$, and may be partly due to the problem that the negation of positive constructs can be linguistically counter-intuitive \citep{Friborg2006}. For instance, students may interpret the statement ``It is not less clear'' differently than the statement ``It is more clear''.
+
+<<OverallSetBars,echo=F, message=FALSE, include=T ,eval=T,fig.width=9, fig.height=2.5, out.width='.99\\linewidth', fig.pos='hbt',fig.align='center',tidy=F, cache=TRUE, fig.show='hold',fig.cap= 'Item set response distributions by polarity.'>>=
+# meltdatNoNA$value <- as.numeric(as.character(meltdatNoNA$value))
+# qu.summary <- ddply(meltdatNoNA, .(set, question.in.set, value), summarize,
+# n=length(value) )
+# qu.summary$polarity <- rep(c("Pos","Pos","Neg","Neg","Pos","Neg","Pos","Neg","Neg","Neg","Pos","Pos"),each=5)
+# qu.summary$glyphShift <- .05
+# qu.summary$glyphShift[qu.summary$polarity=="Neg"] <- -.05
+# 
+# qu.means <- ddply(qu.summary, .(set, value, polarity), summarize, means=mean(n))
+# 
+# #write.csv(qu.means, "quMeans.csv",row.names=FALSE)
+qu.means <- read.csv("quMeans.csv",header=T)
+
+ggplot() +
+  geom_bar(aes(x=as.factor(value-3), weight=means,fill=polarity),data=qu.means,width=.5, position="dodge", size=I(2)) + 
+  theme_bw() + scale_colour_brewer("", palette="Set1") + 
+  scale_shape_manual("", values=c("-","+")) +
+#  scale_shape_manual("", values=15:18) +
+#  geom_point(aes(x=as.character(value-3), y=n,  colour=question.in.set, shape=polarity), data=qu.summary, size=I(7),position="dodge") +
+  facet_grid(facets=.~set) + 
+  xlab("Responses (Post Reverse-Scoring All Negative Item)") + ylab("Count") 
+@
+
+
+To assess whether responses from positive and reverse-scored negative items can be reasonably grouped together within topic sets we turn to principal component analysis.  We first combine the item pairs into averages for each of the six topic and polarity combinations, then we decompose these six scores into principal components. The component variances and factor loadings from this decomposition are found in Table~\ref{pc6table}. We argue that the data could be reasonably reduced to four principal components because each of these components explains over 10\% of the variance and together they explain 87.4\% of the total variation.  The uniformly aligned factor loadings for Component 1 reflect the general tendency toward student agreement to all items on the survey.  The factor loadings for Components 2 and 3 displayed in Figure~\ref{fig:PCA6plot} show similar projections for positive and negative item scores for Ease and Engagement pairs but a dramatic separation in the positive and negative item scores for the Concept set.  \\  
+
+<<PCA6,echo=F, message=FALSE, include=T,eval=T,fig.width=5, fig.height=5, out.width='.4\\linewidth', fig.pos='hbt',fig.align='center',tidy=F, cache=TRUE, fig.show='hold'>>=
+#average score per student per set
+cdat$student <- 1:nrow(cdat)
+
+# Try PCA with 4 values Ease, Engagement, Concept+ and Concept-
+Set6Scores <- ddply(cdat,.(student),summarize,
+                  EasePos = mean(c(q1,q4), na.rm=TRUE),
+                  EaseNeg = mean(c(q7,q10), na.rm=TRUE),
+                  ConceptsPos = mean(c(q2,q8), na.rm=TRUE),
+                  ConceptsNeg = mean(c(q5,q11), na.rm=TRUE),
+                  EngagedPos = mean(c(q9,q12), na.rm=TRUE),
+                  EngagedNeg = mean(c(q3,q6), na.rm=TRUE)  )
+pc6 <- princomp(Set6Scores[,2:7])
+
+pc6loadings <- loadings(pc6)[1:6,]
+pc6vars <- data.frame( PrinComp = 1:6,
+            PropOfVar = (pc6[[1]]^2)/sum(pc6[[1]]^2),
+            CumPropOfVar = cumsum((pc6[[1]]^2)/sum(pc6[[1]]^2)) ,
+            row.names=NULL)
+colnames(pc6vars) <- c("PC" , "Prop. of Var", "Cumulative Prop. of Var")
+@
+
+\begin{table}[hbtp]
+\centering
+\caption[Principal component analysis on topic/polarity item pairs.]{Summary statistics from principal component analysis with six topic/polarity item pairs.} 
+\begin{tabular}{lrrrrrrr}
+\hline 
+& Principal Component & 1 & 2 & 3 & 4 & 5 & 6 \\ 
+\hline
+Variances \hspace{.1in} & Prop. of Var & \Sexpr{sprintf("%.3f", pc6vars[1,2])} & \Sexpr{sprintf("%.3f", pc6vars[2,2])}  & \Sexpr{sprintf("%.3f", pc6vars[3,2])} & \Sexpr{sprintf("%.3f", pc6vars[4,2])} & \Sexpr{sprintf("%.3f", pc6vars[5,2])} & \Sexpr{sprintf("%.3f", pc6vars[6,2])}  \\
+& Cumu. Prop. of Var & \Sexpr{sprintf("%.3f", pc6vars[1,3])} & \Sexpr{sprintf("%.3f", pc6vars[2,3])}  & \Sexpr{sprintf("%.3f", pc6vars[3,3])} & \Sexpr{sprintf("%.3f", pc6vars[4,3])} & \Sexpr{sprintf("%.3f", pc6vars[5,3])} & \Sexpr{sprintf("%.3f", pc6vars[6,3])}  \\
+\hline
+Loadings & Pos. Ease & \Sexpr{sprintf("%.3f", pc6loadings[1,1])} & \Sexpr{sprintf("%.3f", pc6loadings[1,2])} & \Sexpr{sprintf("%.3f", pc6loadings[1,3])} & \Sexpr{sprintf("%.3f", pc6loadings[1,4])} & \Sexpr{sprintf("%.3f", pc6loadings[1,5])} & \Sexpr{sprintf("%.3f", pc6loadings[1,6])}\\
+& Neg. Ease &  \Sexpr{sprintf("%.3f", pc6loadings[2,1])} & \Sexpr{sprintf("%.3f", pc6loadings[2,2])} & \Sexpr{sprintf("%.3f", pc6loadings[2,3])} & \Sexpr{sprintf("%.3f", pc6loadings[2,4])} & \Sexpr{sprintf("%.3f", pc6loadings[2,5])} & \Sexpr{sprintf("%.3f", pc6loadings[2,6])}\\
+& Pos. Concept &  \Sexpr{sprintf("%.3f", pc6loadings[3,1])} & \Sexpr{sprintf("%.3f", pc6loadings[3,2])} & \Sexpr{sprintf("%.3f", pc6loadings[3,3])} & \Sexpr{sprintf("%.3f", pc6loadings[3,4])} & \Sexpr{sprintf("%.3f", pc6loadings[3,5])} & \Sexpr{sprintf("%.3f", pc6loadings[3,6])}\\
+& Neg. Concept &  \Sexpr{sprintf("%.3f", pc6loadings[4,1])} & \Sexpr{sprintf("%.3f", pc6loadings[4,2])} & \Sexpr{sprintf("%.3f", pc6loadings[4,3])} & \Sexpr{sprintf("%.3f", pc6loadings[4,4])} & \Sexpr{sprintf("%.3f", pc6loadings[4,5])} & \Sexpr{sprintf("%.3f", pc6loadings[4,6])}\\
+& Pos. Engaged &  \Sexpr{sprintf("%.3f", pc6loadings[5,1])} & \Sexpr{sprintf("%.3f", pc6loadings[5,2])} & \Sexpr{sprintf("%.3f", pc6loadings[5,3])} & \Sexpr{sprintf("%.3f", pc6loadings[5,4])} & \Sexpr{sprintf("%.3f", pc6loadings[5,5])} & \Sexpr{sprintf("%.3f", pc6loadings[5,6])}\\
+& Neg. Engaged &  \Sexpr{sprintf("%.3f", pc6loadings[6,1])} & \Sexpr{sprintf("%.3f", pc6loadings[6,2])} & \Sexpr{sprintf("%.3f", pc6loadings[6,3])} & \Sexpr{sprintf("%.3f", pc6loadings[6,4])} & \Sexpr{sprintf("%.3f", pc6loadings[6,5])} & \Sexpr{sprintf("%.3f", pc6loadings[6,6])}\\
+\hline
+\end{tabular}
+\label{pc6table}
+\end{table}
+
+<<PCA6plot,echo=F, message=FALSE, include=T,eval=T,fig.width=5, fig.height=5, out.width='.5\\linewidth', fig.pos='hbt',fig.align='center',tidy=F, cache=TRUE, fig.show='hold', fig.cap='Item pair loadings on Components 2 and 3 from the principal component analysis on six topic/polarity item pairs.', fig.scap='Principal component analysis loadings on topic/polarity item pairs.'>>=
+load23dat <- data.frame(pc6loadings[,2:3], compname = row.names(pc6loadings))
+require(grid)
+ggplot(data=load23dat)+ 
+  geom_hline(yintercept =0, colour="darkgray") + geom_vline(xintercept = 0, colour="darkgray")+
+  geom_point(aes(x=Comp.2, y=Comp.3),size=3.5) + xlim(c(-.73,.6)) + 
+  theme_bw() + xlab("Component 2") + ylab("Component 3") +
+  geom_segment(aes(x = 0, y = 0, xend = Comp.2, yend = Comp.3), colour="grey40") + 
+  geom_text(aes(x=0.825*Comp.2, y=0.825*Comp.3, label=compname)) +coord_fixed() + 
+  theme(plot.margin=unit(c(0,0,0,0), unit="cm"))
+@
+
+This principal component analysis, with all topic and polarity combinations, suggests that we can reduce the dimensionality by combining the positive items with the reverse-scored negative items for Ease and Engagement topics.  This leaves only the Concept item set separated based on polarity for final analysis.  The decision to combine the responses for Ease and Engagement items also aligns with the higher internal consistency for these item sets as displayed in Cronbach's $\alpha$ values and fluctuation diagrams in Figure~\ref{fig:fluctuationDiagrams}. Thus, we will carry forward with the final analysis using four resulting item sets: Ease, Positive Concept, Negative Concept and Engagement. 
+
+\subsubsection{Assessment of Orthogonality} 
+
+The next major consideration is whether the item sets are truly measuring different latent topics, and therefore can be view as non-redundant. The ability of the survey to separately measure the topics of Ease, Concepts and Engagement can be assessed through the orthogonality of the responses from different item sets. To check the orthogonality of the sets we conduct another principal component analysis; this time on the average responses for each student from the four item sets -- Ease, Positive Concept, Negative Concept and Engagement.  Items sets will be considered highly orthogonal if the principle component analysis cannot reduce the dimensionality from the four sets. \\
+
+<<PCA4,echo=F, message=FALSE, include=F,eval=T,fig.width=7.5, fig.height=5, out.width='.49\\linewidth', fig.pos='hbt',fig.align='center',tidy=F, cache=TRUE, fig.show='hold'>>=
+#average score per student per set
+cdat$student <- 1:nrow(cdat)
+
+# Try PCA with 4 values Ease, Engagement, Concept+ and Concept-
+Set4Scores <- ddply(cdat,.(student),summarize,
+                  Ease = mean(c(q1,q4,q7,q10), na.rm=TRUE),
+                  ConceptsPos = mean(c(q2,q8), na.rm=TRUE),
+                  ConceptsNeg = mean(c(q5,q11), na.rm=TRUE),
+                  Engaged = mean(c(q3,q6,q9,q12), na.rm=TRUE)  )
+pc4 <- princomp(Set4Scores[,2:5])
+
+summary(pc4)
+loadings(pc4)
+
+pc4loadings <- loadings(pc4)[1:4,]
+pc4vars <- data.frame( PrinComp = 1:4,
+            PropOfVar = (pc4[[1]]^2)/sum(pc4[[1]]^2),
+            CumPropOfVar = cumsum((pc4[[1]]^2)/sum(pc4[[1]]^2)) ,
+            row.names=NULL)
+colnames(pc4vars) <- c("PC" , "Prop. of Var", "Cumulative Prop. of Var")
+@
+
+\begin{table}[hbtp]
+\centering
+\caption[Principal component analysis with final four item sets.]{Principal component analysis with final four item sets.} 
+\begin{tabular}{lrrrrr}
+\hline 
+& Principal Component & 1 & 2 & 3 & 4 \\ 
+\hline
+Variances \hspace{.1in} & Prop. of Var & \Sexpr{sprintf("%.3f", pc4vars[1,2])} & \Sexpr{sprintf("%.3f", pc4vars[2,2])}  & \Sexpr{sprintf("%.3f", pc4vars[3,2])} & \Sexpr{sprintf("%.3f", pc4vars[4,2])}  \\
+& Cumu. Prop. of Var & \Sexpr{sprintf("%.3f", pc4vars[1,3])} & \Sexpr{sprintf("%.3f", pc4vars[2,3])}  & \Sexpr{sprintf("%.3f", pc4vars[3,3])} & \Sexpr{sprintf("%.3f", pc4vars[4,3])}  \\
+\hline
+Loadings & Ease & \Sexpr{sprintf("%.3f", pc4loadings[1,1])} & \Sexpr{sprintf("%.3f", pc4loadings[1,2])} & \Sexpr{sprintf("%.3f", pc4loadings[1,3])} & \Sexpr{sprintf("%.3f", pc4loadings[1,4])}\\
+& Pos. Concept &  \Sexpr{sprintf("%.3f", pc4loadings[2,1])} & \Sexpr{sprintf("%.3f", pc4loadings[2,2])} & \Sexpr{sprintf("%.3f", pc4loadings[2,3])} & \Sexpr{sprintf("%.3f", pc4loadings[2,4])}\\
+& Neg. Concept &  \Sexpr{sprintf("%.3f", pc4loadings[3,1])} & \Sexpr{sprintf("%.3f", pc4loadings[3,2])} & \Sexpr{sprintf("%.3f", pc4loadings[3,3])} & \Sexpr{sprintf("%.3f", pc4loadings[3,4])}\\
+& Engagement &  \Sexpr{sprintf("%.3f", pc4loadings[4,1])} & \Sexpr{sprintf("%.3f", pc4loadings[4,2])} & \Sexpr{sprintf("%.3f", pc4loadings[4,3])} & \Sexpr{sprintf("%.3f", pc4loadings[4,4])}\\
+\hline
+\end{tabular}
+\label{pctable}
+\end{table}
+
+Table~\ref{pctable} displays the proportion of variance explained by each of the four principal components and factor loadings. The first principal component has similar loadings from all item sets, which we can interpret as the general tendency toward positively scored responses on all items. The second, third and fourth principal components create separation for mean responses of the Negative Concept item set, the Engagement item set and the Ease item sets, respectively. The variances in Table \ref{pctable} reveal that over 10\% of the variation is explained by the fourth component, thus it is necessary to retain all four principal components. This inability to reduce dimensionality implies that average student responses from the four item sets are largely orthogonal. Based on the separation in the loadings and the orthogonality of the principal components, we conclude that the average response scores from the four item set have interpretability as measurements of unique latent topics. 
+
+
+%-------------------------------------------------------------------------
+\subsubsection{Survey Assessment Results} 
+
+In the analysis of student responses, we find that the internal consistency, assessed with Cronbach's $\alpha$ and fluctuation diagrams, is acceptable for interpreting the combined item responses that measure ease of use and engagement with the census data. We do not have the same certainty with the responses to Concept items and therefore split the Concept items into two sets: the Positive and Negative Concept item sets. This split is supported by the initial principal component analysis of the six topic and polarity item pair scores. The follow-up principal component analysis on the combined responses for each of the four resulting item sets indicates that the factors were all fairly orthogonal. This ensures us that the survey was effective at eliciting unique characteristics of the user experience.
+
+The barcharts found in Figure \ref{fig:OverallSetBars} show that the distribution for each item set is heavily skewed to the left, with the majority of students having neutral to positive responses. The small tail to the left in each distribution indicates that there was a small minority of students with expressedly negative views. The response distributions indicate that on average students found the Shiny Database Sampler easy to use, found that the tool connected them to sampling concepts and felt moderately engaged with the census data that was accessed with the application. 
+
+
+\section{Conclusions and Future Work}
+
+The Shiny Database Sampler allows point-and-click access to large databases through the mechanism of random sampling. This approach adds pedagogical value over the use of static samples because it allows for course activities to highlight the concepts and process of collecting data through random sampling. The lab and project application of the Shiny Database Sampler within an introductory course were designed to emphasize thought about sampling concepts and the data, not about the software. Toward this scaffolded approach, the design aimed to make the interface easy to use, clearly display sampling concepts and provide engaging data. The student user survey indicates that these goals were met.
+
+The Shiny Database Sampler could naturally be updated to access additional databases or provide more statistical analysis or visualization options directly within the interface. Also in future work, a similar interface could be developed where the user specifies an aggregation scheme instead of a sampling scheme. This approach would be more true to exploration techniques of big data sources than using random sampling; this would be a distinct -- and perhaps exciting -- departure from the content of a traditional introductory statistics curriculum. In such an interface, grouping variables or binning parameters could be used to direct dynamic data aggregation to then be explored; using display such as histograms or binned scatterplots. As the size and ubiquity of data in the world grows, students would be well served by attempts to thoughtfully incorporate big data into the undergraduate statistics curricula.
+
+\bibliography{references}
+
+% %-------------------------------------------------------
+% \appendix (MOVED TO Appendix1.Rnw File)
+% %-------------------------------------------------------
+% \section{Appendix: Lab Assignment}
+% \label{labappend}
+% 
+% For this activity you will be using a tool called the Shiny Database Sampler to take a random sample of United States residents from US census data. The census data is the Public Use Microdata Sample (PUMS) which is a 3 million person subset of the entire Census data.  For this activity we treat our samples as though they are selected from the full census records.  \\ 
+% 	
+% We are going to explore how these random sampling plans relate to the goals of a sample survey. The tool will allow you to define either a simple random sampling plan or a stratified random sampling plan. In the following two scenarios we will explore the advantages and disadvantages of these two sampling plans. Access the tool at \url{http://shiny.stat.iastate.edu/karstenm/ShinyDatabaseSampler}. \\	 
+% 
+% \underline{Scenario 1:} Suppose that our goal is to estimate the mean age of all US residents. Similar to polling organizations we have a budget that allows us to survey around 1000 people. To collect our sample we decide to take a simple random sample of 1040 US residents. \\
+% 
+% \begin{enumerate}[(a)]
+% \item Is this study and example of an experiment or an observational study?  Explain your answer.
+% \item	Your colleague Bob claims that we are wasting our budget to get only 1040 people using random sampling. He says that we could get 20000 responses to the survey if we invested that money into a mailing campaign in Minneapolis. Explain why the random selection is important.
+% \item	Another colleague, Jill, asks why we do not stratify by state when we take the sample so that we get 20 people from each of the 50 states along with Puerto Rico and the District of Columbia. Explain why this idea would not create a representative sample to pursue our goal.
+% \end{enumerate}
+% 
+% Now that we have decided on our sampling plan, let's go collect our data.  The Shiny Database Sampler needs to be told 4 pieces of information in order to collect census records the way you want. (1) Choose the database called ``Census'', (2) select the ``simple random sample'' option, (3) enter a random seed, any number between 1 and 10000, you can do this by rolling a 10-sided die 4 times and (4) lastly tell it that we want ``1040'' random draws. Once you have drawn your samples the page will display basic summary statistics for the variables in the census.\\
+% 
+% \begin{enumerate}[(a)]
+% \setcounter{enumi}{3}
+% \item Report the 5-number summary and sample mean age.
+% \item	Use the 5-number summary to construct a box plot of age.
+% \item	Go to the ``Visualize'' tab.  Choose age as your Response Variable to Plot.  What type of variable is this?  By clicking on Make My Plot? a histogram of the sample of ages will be displayed.  Describe the shape of the data distribution of age.
+% \item	Is the relationship between the sample mean and sample median consistent with your description of shape?  Explain briefly.
+% \item	If our goal was to not only estimate the mean age of all the U.S. residents but also come up with estimates of the median age of all residents in each of the 50 states, plus the District of Columbia and Puerto Rico what is a drawback of using the simple random sample of 1040?  Hint: Set the Data Table to display 100 records per page and go to the page that has ``states'' 10 and 11 (Delaware and the District of Columbia).
+% \end{enumerate}
+% 
+% \underline{Scenario 2:} Suppose now that our goal has changed.  Now we wish to investigate the association between age and state of residency. We want to compare the median ages for different states. We still have a budget that allows us to survey around 1040 people. To collect our sample we decide to take a stratified random sample of 20 residents from each state in the United States plus the District of Columbia and Puerto Rico. 
+% 
+% \begin{enumerate}[(a)]
+% \setcounter{enumi}{8}
+% \item  Explain in general why collecting a stratified random sample is a better plan than a simple random sample for answering this question.  
+% \end{enumerate}
+% 
+% Now that we have decided on our new sampling plan, let's go collect our data.  The Shiny Database Sampler will need to be told 5 pieces of information in order to collect census records the way you want this time. (1) Choose the database called ``Census'', (2) select the ``stratified random sample'' option, (3) enter a random seed, any number between 1 and 10000, you can do this by rolling a 10-sided die 4 times, (4) select ``state'' as strata variable and (5) lastly tell it that we want ``20'' random draws from each state, plus the District of Columbia and Puerto Rico.  \\
+% 
+% It will take a minute or two to collect these data. It is sifting through millions of records and randomly selecting them from within state groups after all! Once you have drawn your samples you can take a peek at your data set in the main panel of the webpage. You will be able to answer the following questions using the summaries provided on the webpage.  \\
+% 
+% You will notice that the summaries are all broken down by state, but the states are not given names, they are given a code number.  This is done on the census to save computer storage space (saving a ``19'' is much smaller than ``Iowa'').  A list of all the state codes is available at \url{https://www.census.gov/geo/reference/ansi\_statetables.html} (Click on FIPS Codes for the States and the District of Columbia).\\ 
+% 
+% 
+% 
+% \begin{enumerate}[(a)]
+% \setcounter{enumi}{9}
+% \item Report the mean and 5-number summary for the age of the sample from the state of Iowa (\texttt{state = 19}).
+% \item	Report the mean and 5-number summary for the age of the sample from the state of Alaska (\texttt{state = 2}).
+% \item	Compare the distribution of ages in Alaska and Iowa using the values from parts j and k.
+% \item	Making comparisons as we have done above would become tedious if we wanted to compare ages between all pairs of states in the country.  What would be a good way to visually display this information so aid in making these comparisons? Explain your answer.
+% \end{enumerate}
+% 
+% 
+% % %------------------------------------------------------------------
+% % \section{Appendix: Technical Implementation of Shiny Application}
+% % \label{appendConstruction}
+% % 
+% % \textbf{Construction schematics and description of sampling process and plotting process.}
+% % 
+% % 
+% % %------------------------------------------------------------------
+% % \section{Appendix: Database Descriptions}
+% % \label{appendDB}
+% % 
+% % \textbf{To be detailed when databases updated and origins better known.}
+% 
+% %------------------------------------------------------------------
+% \section{Appendix: Cronbach's $\alpha$ Properties}
+% \label{appendCronbach}
+% 
+% Recall the form of Cronbach's $\alpha$ from equation~(\ref{eq:alpha}):
+% 
+% \begin{center}
+% $\alpha = \left(K/(K-1)\right) \left( 1- \sum_{i=1}^K \V{Y_i} \right.\left/  \V{\sum_{j=1}^K Y_j}  \right)$,
+% \end{center}
+% 
+% \textit{Claim 1:} Perfect agreement in items leads to $\alpha = 1$ 
+% 
+% \textit{Proof:} Let $ Y = Y_1 = Y_2 = ... = Y_k$, thus having perfect agreement.
+% 
+% $\Rightarrow$  $\text{Cov}(Y_i, Y_j) = \V{Y} = \sigma^2_y $ \hspace{.1in} $\forall i\ne j$ \\
+% 
+% $\Rightarrow$  $\V{\sum_{j=1}^K Y_j }$ = $\sum_{i=1}^K \V{Y_i} + \sum_{i\ne j}\text{Cov}(Y_i, Y_j)$ =  $K\sigma^2_y + K(K-1)\sigma^2_y$ \\
+% 
+% $\Rightarrow$  $\alpha = \left(K/(K-1)\right) \left( 1- \sum_{i=1}^K \V{Y_i} \right.\left/  \V{\sum_{j=1}^K Y_j}  \right)$ = \\
+% \indent \hspace{.2in} $\left(K/(K-1)\right) \left( 1- K\sigma^2_y \right.\left/ K\sigma^2_y + K(K-1)\sigma^2_y \right)$ =\\
+% \indent \hspace{.2in} $\left(K/(K-1)\right)  (1- 1/K)$ = $\left(K/(K-1)\right) ((K-1)/K)$ = $1$ \\
+% 
+% \vspace{.25in} %------------------------------
+% 
+% \textit{Claim 2:} For independent items $\alpha = 0$ 
+% 
+% \textit{Proof:} Let $Y_1 = Y_2 = ... = Y_k$ be independent 
+% 
+% $\Rightarrow$ $\sum_{i=1}^K \V{Y_i} = \V{\sum_{j=1}^K Y_j} $ 
+% 
+% $\Rightarrow$  $\alpha = \left(K/(K-1)\right) \left( 1- \sum_{i=1}^K \V{Y_i} \right.\left/  \V{\sum_{j=1}^K Y_j}  \right)$ = \\
+% \indent \hspace{.2in} $\alpha = \left(K/(K-1)\right) \left( 1- \V{\sum_{j=1}^K Y_j} \right.\left/  \V{\sum_{j=1}^K Y_j}  \right)$ = \\
+% \indent \hspace{.2in} $\alpha = \left(K/(K-1)\right) \left( 1- 1 \right)$ = 0 
+% 
+% \vspace{.25in} %------------------------------
+% 
+% \textit{Claim 3:} Perfect disagreement in items leads to $\alpha = -\infty$ 
+% 
+% \textit{Proof:} Let $K=2$ and $Y_1 = -Y_2$, thus having perfect disagreement.
+% 
+% $\Rightarrow$  $\V{Y_1 + Y_2}$ = $\V{Y_1 - Y_1}$ = $\V{0}$ = $0$
+% 
+% $\Rightarrow$  $\alpha = \left(K/(K-1)\right) \left( 1- \sum_{i=1}^K \V{Y_i} \right.\left/  \V{\sum_{j=1}^K Y_j}  \right)$ = $(2/1)(1-2\sigma^2_y/0)$ = $-\infty$ 
+
+
+
+\end{document}

@@ -1,0 +1,68 @@
+This is pdfTeX, Version 3.1415926-2.3-1.40.12 (MiKTeX 2.9) (preloaded format=pdftex 2014.8.8)  5 NOV 2014 12:32
+entering extended mode
+**C:/Users/Karsten/Dropbox/ShinyDBSampler/LabUseCaseStudy/references.bib
+(C:/Users/Karsten/Dropbox/ShinyDBSampler/LabUseCaseStudy/references.bib
+Overfull \hbox (94.27415pt too wide) in paragraph at lines 1--15
+[]\tenrm @articlecronbach:51, year=1951, issn=0033-3123, jour-nal=Psychometrika
+, vol-ume=16, num-ber=3, doi=10.1007/BF02310555,|
+
+\hbox(7.5+2.5)x469.75499, glue set - 1.0
+.\hbox(0.0+0.0)x20.0
+.\tenrm @
+.\tenrm a
+.\tenrm r
+.\tenrm t
+.etc.
+
+
+Overfull \hbox (62.52399pt too wide) in paragraph at lines 1--15
+\tenrm ti-tle=Coefficient al-pha and the in-ter-nal struc-ture of tests, url=ht
+tp://dx.doi.org/10.1007/BF02310555, publisher=Springer-|
+
+\hbox(7.5+2.5)x469.75499, glue set - 1.0
+.\tenrm t
+.\tenrm i
+.\discretionary
+..\tenrm -
+.\tenrm t
+.\tenrm l
+.etc.
+
+
+Overfull \hbox (4.66267pt too wide) in paragraph at lines 37--49
+\tenrm lisher=Elsevier, au-thor=O. Fri-borg and M. Mar-t-i-nussen and J. Rosenv
+inge, pages=873-884, lan-guage=English|
+
+\hbox(6.94444+1.94444)x469.75499, glue set - 1.0
+.\tenrm l
+.\tenrm i
+.\tenrm s
+.\tenrm h
+.\tenrm e
+.etc.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 37--49
+
+
+\hbox(0.0+0.0)x469.75499
+.\glue(\rightskip) 0.0
+
+! Missing $ inserted.
+<inserted text> 
+                $
+<to be read again> 
+                   _
+l.172 ...scomputing.net/files/CampusComputing2013_
+                                                  1.pdf}
+? 
+! Emergency stop.
+<inserted text> 
+                $
+<to be read again> 
+                   _
+l.172 ...scomputing.net/files/CampusComputing2013_
+                                                  1.pdf}
+End of file on the terminal!
+
+!  ==> Fatal error occurred, no output PDF file produced!
