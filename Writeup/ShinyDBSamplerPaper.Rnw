@@ -6,7 +6,7 @@
 \usepackage{enumerate}
 \usepackage{url}
 % \usepackage[utf8]{inputenc}
-% \usepackage{fullpage}
+\usepackage{fullpage}
 % \usepackage{color}
 % \usepackage{mathrsfs}
 
@@ -192,7 +192,7 @@ Exposing students to larger and larger data is tricky because it becomes increas
 %%%-----------------------------------------------------------------------------------
 \subsection{Layout and Design}
 
-The Shiny Database Sampler allows the user to randomly sample subsets from remotely stored SQL databases using a point-and-click graphical user interface. The tool is available online through the link at \url{http://shiny.stat.iastate.edu/karstenm/ShinyDatabaseSampler/}. A screenshot of the graphical user interface is shown in Figure~\ref{fig:samplesummarizetab}.  %; however these sections contain different options and displays depending on which tab of the application is selected.\\
+The Shiny Database Sampler allows the user to randomly sample subsets from remotely stored SQL databases using a point-and-click graphical user interface. The tool is available online through the link at \url{http://dataviz.miamioh.edu/ShinyDBSampler/}. A screenshot of the graphical user interface is shown in Figure~\ref{fig:samplesummarizetab}.  %; however these sections contain different options and displays depending on which tab of the application is selected.\\
 
 The Shiny Database Sampler is a JavaScript based online application created using the \texttt{shiny} package \citep{shiny} in the statistical computing language \texttt{R} \citep{R}. The Shiny package uses \texttt{R} code files to generate the graphical user interface in a web browser that interacts with an \texttt{R} session running on the server.  It is used in combination with the \texttt{RMySQL} package \citep{RMySQL} to allow the \texttt{R} session on the server machine to query the database at the user's request via buttons in the graphical user interface.
 
@@ -205,11 +205,11 @@ The graphical user interface contains two tabs, each broken into two panels. The
 
 A screenshot of the interface for the \textit{Sample and Summarize} tab is shown in Figure~\ref{fig:samplesummarizetab} below. A sidebar panel which contains all the sampling options and controls, and a main panel which contains the data table and brief summary of the sampled data set.
 
-The sidebar panel contains several fields and buttons for selecting and executing a sampling plan.  At the top of the sidebar is a drop-down menu to select the database table from which the user may take a random subsample.  The current version of the tool allows users to access the 2001-2009 Fatality Analysis Recording System accident data from the National Highway Traffic Safety Administration (\url{www.nhtsa.gov/FARS}) and the Public Use Micro Sample data from the 2000 United States Census (\url{www.census.gov/}).
+The sidebar panel contains several fields and buttons for selecting and executing a sampling plan.  At the top of the sidebar is a drop-down menu to select the database table from which the user may take a random subsample.  The current version of the tool allows users to access the 2007-2018 Fatality Analysis Recording System accident data from the National Highway Traffic Safety Administration (\url{www.nhtsa.gov/FARS}) and the Public Use Micro Sample data from the 2017 American Community Survey from the United States Census Bureau (\url{www.census.gov/programs-surveys/acs}).
 
 \begin{figure}[hbtp]
 \centering
-\includegraphics[keepaspectratio=TRUE,width=.95\textwidth]{SampleAndSummarizeWithPanelLabels.png}
+\includegraphics[keepaspectratio=TRUE,width=.95\textwidth]{SampleAndSummarizeWithPanelLabels1.png}
 \caption[\textit{Sample and Summarize} tab screenshot.]{Shiny Database Sampler layout for \textit{Sample and Summarize} tab.} 
 \label{fig:samplesummarizetab}
 \end{figure}
@@ -224,11 +224,9 @@ The main panel of the Shiny Database Sampler interface displays a data table and
 \subsubsection{The \textit{Visualize} tab}
 %\paragraph{The ``Visualize'' tab} \hfill\newline
 
-The \textit{Visualize} tab of the interface is designed to construct basic plots of the active data that was drawn in the \textit{Sample and Summarize} tab. Figure~\ref{fig:visualizetab} shows a screenshot of the layout of the \textit{Visualize} tab. The sidebar panel contains fields for specifying variables and variable types that will be plotted. Univariate plots can be created by selecting the response variable from a drop-down menu containing a list of all variables and the variable type. Plots may also display bivariate relationships by additionally selecting an explanatory variable and it's variable type. 
+The \textit{Visualize} tab of the interface is designed to construct basic plots of the active data that was drawn in the \textit{Sample and Summarize} tab. Figure~\ref{fig:visualizetab} shows a screenshot of the layout of the \textit{Visualize} tab. The sidebar panel contains fields for specifying variables and variable types that will be plotted. Univariate plots can be created by selecting a variable from a drop-down menu containing a list of all variables. Plots may also display bivariate relationships by additionally selecting a second variable. Table~\ref{tab:defaultplottypes} shows the possible plot types that can be created based on the types of variables selected. For categorical displays, the groupings are sorted to match ordinal categories when possible, and alphabetically for nominal variables. There is checkbox control that allows the user to override these and sort from the categories with descending numeric characteristics: frequency for barplots, medians for boxplots. 
 
-The variable types must be manually specified as numerical or categorical. Variable types are not automatically specified for variables in the database for the deliberate purpose of forcing student users to consider appropriate ways to display the data. Table~\ref{tab:defaultplottypes} shows the possible plot types that can be created based on the options selected.
-
-Once the plotting options are selected in the sidebar panel, the user may click the \textit{Make my Plot!} button to generate and display the plot in the main panel. Since the visualizations are intended only for preliminary exploration, the plots have a default construction and labeling that are not able to be customized. \\
+As plotting options are selected in the sidebar panel, plot display will continue to update in the main panel. Since the visualizations are intended only for preliminary exploration, the plots have a default construction and labeling that are not able to be customized. \\
 
 \begin{table}[hbtp]
 \centering
@@ -250,7 +248,7 @@ Numerical & Categorical & Side-by-side Boxplots \\
 
 \begin{figure}[htbp]
 \begin{center}
-\includegraphics[keepaspectratio=TRUE,width=.99\textwidth]{Visualize.png}
+\includegraphics[keepaspectratio=TRUE,width=.99\textwidth]{Visualize2.png}
 \end{center}
 \caption[\textit{Visualize} tab screenshot.]{Shiny Database Sampler layout for \textit{Visualize} tab.} 
 \label{fig:visualizetab}
