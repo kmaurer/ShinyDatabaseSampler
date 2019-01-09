@@ -176,13 +176,13 @@ As the availability of truly massive data proliferates, it is enticing to incorp
 
 \section{Introduction}
 
-Statistics education has been rapidly evolving in the past decade with respect to undergraduate course curriculum and assessment. Technology has played the role as a catalyst for many of these major changes. An important change involves how data is accessed and analyzed in the classroom. The GAISE report \citep{GAISEcollege} laid out six recommendations on how to improve the teaching of introductory statistics; two of which urge statistics instructors to ``Use technology for developing conceptual understanding and analyzing data'' and to ``Use real data''. Recently, the GAISE guidelines were revised to reflect specific areas of emphasis and included calls for the use of new technologies \citep{GAISE2016}. This included the use of \texttt{R} \citep{R} and \texttt{shiny} \citep{shiny} to flexibly create web apps that make technically complex statistical concepts more accessible to students.
+Statistics education has been rapidly evolving in the past decade with respect to undergraduate course curriculum and assessment. Technology has played the role as a catalyst for many of these major changes. An important change involves how data is accessed and analyzed in the classroom. The GAISE report \citep{GAISEcollege} laid out six recommendations on how to improve the teaching of introductory statistics; two of which urge statistics instructors to ``Use technology for developing conceptual understanding and analyzing data'' and to ``Use real data''. Recently, the GAISE guidelines were revised to reflect specific areas of emphasis and included calls for the use of new technologies \citep{GAISE2016}. One suggestion is the use of \texttt{R} \citep{R} and \texttt{shiny} \citep{shiny} to flexibly create web apps that make technically complex statistical concepts more accessible to students.
 
-\citet{Doi2016web} used \texttt{shiny} to create a collection of apps for their particular course needs. They fall largely in the footsteps of previous apps in statistics education apps such as the collection of Javascript Applets by \citet{chance2006using} and Statkey by \citet{morgan2014statkey}, but are built in the \texttt{R} environment; a setting where more statistician feel comfortable to work and create cumstomized course content. Indeed, many others in the statistics education community have been creating custom apps for -- and sometimes with -- their students (\citealt{Adrian2018}; \citealt{hare2016}; \citealt{BOAST}). 
+\citet{Doi2016web} used \texttt{shiny} to create a collection of apps for their particular course needs. They fall largely in the footsteps of previous web application for statistics education, such as the collection of Javascript Applets by \citet{chance2006using} and Statkey by \citet{morgan2014statkey}, but are built in the \texttt{R} environment; a setting where more statistician feel comfortable to work and create cumstomized course content. Indeed, many others in the statistics education community have been creating custom apps for -- and in some cases with -- their students (\citealt{Adrian2018}; \citealt{hare2016}; \citealt{BOAST}). 
 
-In addition to web application that teach concepts, there are also many existing software tools and online repositories for instructors to access real data for use in the statistics classroom. These include the Data and Story Library \citep{DASL} and its Australian counterpart, OzDASL \citep{OzDASL}, the Data Archives of the Journal of Statistics Education \citep{JSErepo}, CAUSE Web Repository \citep{CAUSErepo}, and Many Eyes \citep{ManyEyes}. These repositories are wonderful for accessing many real data sets but many of the data sets currently available are quite small in scale.
+In addition to web application for teaching concepts, there are also many existing data repositories for instructors to access real data for use in the statistics classroom. These include the Data and Story Library \citep{DASL} and its Australian counterpart, OzDASL \citep{OzDASL}, the Data Archives of the Journal of Statistics Education \citep{JSErepo}, CAUSE Web Repository \citep{CAUSErepo}, and Many Eyes \citep{ManyEyes}. These repositories are wonderful for accessing many real data sets but many of the data sets currently available are quite small in scale.
 
-\citet{Finzer2007} argue that in curricula for introductory level statistics ``(w)hat seems to us to be missing are data sets-especially large and highly multivariate data sets-that are ripe for exploration and conjecture driven by the students' intrigue, puzzlement and desire for discovery'' \citep[p.1]{Finzer2007}. Large, real data sources are becoming increasingly available, but tend to be less easily accessible for the typical introductory student. A major contributor to this trend is the Freedom of Information Act which to ensures that non-classified data from the United States government is publicly available \citep{FOIA}. The online government resources at \url{www.data.gov/} \citep{DataGov}, \url{www.census.gov/} \citep{Census}, \url{www.nhtsa.gov/} \citep{NHTSA} and \url{www.cdc.gov/} \citep{CDC} are all locations of massive data stores. Governmental data sets contain rich information related to many socially relevant issues, making them prime candidates for engaging student interest. However, in many of these cases the size of the datasets and technical issues with access may act as a barrier to connecting undergraduate statistics students with big data sources. 
+\citet{Finzer2007} argue that in curricula for introductory level statistics ``(w)hat seems to us to be missing are data sets-especially large and highly multivariate data sets-that are ripe for exploration and conjecture driven by the students' intrigue, puzzlement and desire for discovery'' \citep[p.1]{Finzer2007}. Large, real data sources are becoming increasingly available, but tend to be less easily accessible for the typical introductory student. A major contributor to this trend is the Freedom of Information Act which to ensures that non-classified data from the United States government is publicly available \citep{FOIA}. The online government resources at \url{www.data.gov/} \citep{DataGov}, \url{www.census.gov/} \citep{Census}, \url{www.nhtsa.gov/} \citep{NHTSA} and \url{www.cdc.gov/} \citep{CDC} are all locations of massive data stores. Governmental data sets contain rich information related to many socially relevant issues, making them prime candidates for engaging student interest. However, in many of these cases the size of the datasets and technical access issues may act as a barrier to connecting undergraduate statistics students with these big data sources. 
 
 %\citet{jacobs2009} speaks of the difficulties associated with using, ``data whose size forces us to look beyond the tried-and-true methods that are prevalent at that time''. Despite the gains in available of computational resources, there are still some data tasks that would prove unweildy to distribute to the personal computers of New data technologies are needed in order to allow introductory statistics students to interact with big data sources, such as the governmental databases. 
 
@@ -200,7 +200,7 @@ The Shiny Database Sampler allows the user to randomly sample subsets from remot
 
 The Shiny Database Sampler is a JavaScript based online application created using the \texttt{shiny} package \citep{shiny} in the statistical computing language \texttt{R} \citep{R}. The Shiny package uses \texttt{R} code files to generate the graphical user interface in a web browser that interacts with an \texttt{R} session running on the server.  It is used in combination with the \texttt{RMySQL} package \citep{RMySQL} to allow the \texttt{R} session on the server machine to query the database at the user's request via buttons in the graphical user interface. The sample is then displayed in tabular form, as well as using simple data visualization constructed with the \texttt{ggplot2} package \citep{ggplot2}.
 
-The interface was designed with a focus on the quality of the software as an educational tool. The field of software development defines six attributes contributing to software quality: functionality, reliability, usability, efficiency, maintainability, efficiency and portability (\citealt{bevan1997quality}; \citealt{manuel2002quality}). The Shiny Database Sampler is highly portable, as it can be accessed online through any JavaScript enabled web browser. The reliability and maintainability of \texttt{shiny} applications depend upon proper implementation of \texttt{R} and \texttt{shiny} on the web server. The key consideration with respect to efficiency is to optimize the database querying using proper indexing so that sample retrieval occurs almost instantaneously \citep{schwartz2012high}. 
+The interface was designed with a focus on the quality of the software as an educational tool. The field of software development defines six attributes contributing to software quality: functionality, reliability, usability, efficiency, maintainability, efficiency and portability (\citealt{bevan1997quality}; \citealt{manuel2002quality}). The Shiny Database Sampler is highly portable, as it can be accessed online through any JavaScript enabled web browser. The reliability and maintainability of \texttt{shiny} applications depend upon proper implementation of \texttt{R} and \texttt{shiny} on the web server. The key consideration with respect to efficiency is to optimize the database querying using proper indexing so that sample retrieval occurs quickly \citep{schwartz2012high}. 
 
 The graphical user interface contains two tabs, each broken into two panels. The layout is designed for the user to select actions in the side panel and view the results in the main panel. The functionality and usability of the \textit{Sample and Summarize} and \textit{Visualize} tabs are discussed in the following subsections. 
 
@@ -211,26 +211,34 @@ A screenshot of the interface for the \textit{Sample and Summarize} tab is shown
 
 The sidebar panel contains several fields and buttons for selecting and executing a sampling plan.  At the top of the sidebar is a drop-down menu to select the database table from which the user may take a random subsample.  The current version of the tool allows users to access the 2007-2018 Fatality Analysis Recording System accident data from the National Highway Traffic Safety Administration (\url{www.nhtsa.gov/FARS}) and the Public Use Micro Sample data from the 2017 American Community Survey from the United States Census Bureau (\url{www.census.gov/programs-surveys/acs}).
 
-\begin{figure}[hbtp]
+\begin{figure}[h]
 \centering
 \includegraphics[keepaspectratio=TRUE,width=.95\textwidth]{SampleAndSummarizeWithPanelLabels1.png}
 \caption[\textit{Sample and Summarize} tab screenshot.]{Shiny Database Sampler layout for \textit{Sample and Summarize} tab.} 
 \label{fig:samplesummarizetab}
 \end{figure}
 
-After selecting the database, the user can choose between taking a simple or stratified random subsample of data from the database. If the user chooses simple random sampling, then they must specify a sample size; whereas if the user chooses stratified random sampling the strata variable and number of observations per stratum need to be specified. Lastly the user sets the seed for the selection algorithm. Setting the seed may seem to contradict the intention to draw random subsets, however it was included after careful consideration. For classroom settings, it is often desirable for students to work with identical data sets for consistency of class discussion and grading. This can be accomplished by setting the same seed and the same sampling specifications. Obtaining a random sample from the databases is still possible with the additional -- but fairly trivial -- step of first randomly generating a starting seed. 
+After selecting the database, the user can choose between taking a simple or stratified random subsample of data from the database. If the user chooses simple random sampling, then they must specify a sample size; whereas if the user chooses stratified random sampling the strata variable and number of observations per stratum need to be specified. Lastly the user may choose to set a seed for the selection algorithm. For classroom settings, it is often desirable for students to work with identical data sets for consistency of class discussion and grading. This can be accomplished by setting the same seed and the same sampling specifications. 
 
 Once the sampling setup is specified, the user may click the \textit{Get My Sample!} button and the randomly selected subsample of the database will be obtained and displayed in the main panel of the interface. Note that the interface only keeps track of the more recently selected subsample, which we will refer to as the \textit{active data}. Lastly, the side panel contains the button to download the active data to a local drive on the user's computer.  The data will be downloaded as comma separated values (csv) file to the default download folder on the user's computer.
 
-The main panel of the Shiny Database Sampler interface displays a data table and a basic summary of each variable in the active data. When logging into the webpage a default sample is taken and displayed until a sample of the users choosing is selected. The data table is searchable, sortable and expandable which makes it easy for the user to take a quick peek at the variable names and values in the active data. The basic summary statistics for each variable are also displayed in the main panel below the data table; those familiar with \textit{R} programming will quickly recognize this as the verbatim output of the \textit{summary} function in \textit{R}. In the case that stratified sampling was used to draw the data, the summary for each variable is broken down by strata. The displays in the main panel of the Shiny Database Sampler are not intended to be the location for any extensive analysis of the active data but instead a quick check that it was what the user intended to select. 
+The main panel of the Shiny Database Sampler interface displays a data table and a basic summary of each variable in the active data. When logging into the webpage a default sample is taken and displayed until a sample of the users choosing is selected. The data table is searchable, sortable and expandable which makes it easy for the user to take a quick peek at the variable names and values in the active data. 
+%The basic summary statistics for each variable are also displayed in the main panel below the data table; those familiar with \textit{R} programming will quickly recognize this as the verbatim output of the \textit{summary} function in \textit{R}. In the case that stratified sampling was used to draw the data, the summary for each variable is broken down by strata. 
+The displays in the main panel of the Shiny Database Sampler are not intended to be the location for any extensive analysis of the active data but instead a quick check of the data structure.
 
 
 \subsubsection{The \textit{Visualize} tab}
 %\paragraph{The ``Visualize'' tab} \hfill\newline
 
-The \textit{Visualize} tab of the interface is designed to construct basic plots of the active data that was drawn in the \textit{Sample and Summarize} tab. Figure~\ref{fig:visualizetab} shows a screenshot of the layout of the \textit{Visualize} tab. The sidebar panel contains fields for specifying variables and variable types that will be plotted. Univariate plots can be created by selecting a variable from a drop-down menu containing a list of all variables. Plots may also display bivariate relationships by additionally selecting a second variable. Table~\ref{tab:defaultplottypes} shows the possible plot types that can be created based on the types of variables selected. For categorical displays, the groupings are sorted to match ordinal categories when possible, and alphabetically for nominal variables. There is checkbox control that allows the user to override these and sort from the categories with descending numeric characteristics: frequency for barplots, medians for boxplots. 
-
-As plotting options are selected in the sidebar panel, plot display will continue to update in the main panel. Since the visualizations are intended only for preliminary exploration, the plots have a default construction and labeling that are not able to be customized. \\
+The \textit{Visualize} tab of the interface is designed to construct basic plots of the active data that was drawn in the \textit{Sample and Summarize} tab. Figure~\ref{fig:visualizetab} shows a screenshot of the layout of the \textit{Visualize} tab. The sidebar panel contains fields for specifying variables that will be plotted. Univariate plots can be created by selecting a variable from a drop-down menu containing a list of all variables. Plots may also display bivariate relationships by additionally selecting a second variable. Table~\ref{tab:defaultplottypes} shows the plot types that can be created based on the types of variables selected. For categorical displays, the groupings are sorted to match ordinal categories when possible, and alphabetically for nominal variables. There is checkbox control that allows the user to override these and sort from the categories with descending numeric characteristics: frequency for barplots, medians for boxplots. As plotting options are selected in the sidebar panel, plot display will continue to update in the main panel. 
+%Since the visualizations are intended only for preliminary exploration, the plots have a default construction and labeling that are not able to be customized. \\
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[keepaspectratio=TRUE,width=.99\textwidth]{Visualize2.png}
+\end{center}
+\caption[\textit{Visualize} tab screenshot.]{Shiny Database Sampler layout for \textit{Visualize} tab.} 
+\label{fig:visualizetab}
+\end{figure}
 
 \begin{table}[hbtp]
 \centering
@@ -250,20 +258,13 @@ Numerical & Categorical & Side-by-side Boxplots \\
 \end{table}
 
 
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[keepaspectratio=TRUE,width=.99\textwidth]{Visualize2.png}
-\end{center}
-\caption[\textit{Visualize} tab screenshot.]{Shiny Database Sampler layout for \textit{Visualize} tab.} 
-\label{fig:visualizetab}
-\end{figure}
 
 
 %%%-----------------------------------------------------------------------------------
 \subsection{Applications}
 \label{Applications}
 
-The Shiny Database Sampler was developed for applications in statistics education and was implemented in the initial stages of development within the curriculum of an introductory statistics course. The alpha version of the software was used within one section of Statistics 104: \textit{Introduction to Statistics} for a group lab assignment and a course project. Later, a beta version was extended to be used in a lab assignment for six more sections of the same course. These two applications demonstrate possible uses of the Shiny Database Sampler. 
+The Shiny Database Sampler was developed for applications in statistics education and was implemented in the initial stages of development within the curriculum of an introductory statistics course. An alpha version of the software was used within a section of an introductory statistics course at a large public midwestern univer for a group lab assignment and a course project. The course was an algebra-based introductory course for non-STEM majors. Later, a beta version was extended to be used in a lab assignment for six more sections of the same course. These two applications demonstrate possible uses of the Shiny Database Sampler. 
 
 %-------------------------------------------------------------------------
  \subsubsection{Lab Application Overview} 
@@ -277,13 +278,13 @@ The lab that utilized the Shiny Database Sampler was designed for students to th
 \item Suppose now that our goal has changed.  Now we wish to investigate the association between age and state of residency. We want to compare the median ages for different states. We still have a budget that allows us to survey of 1040 people. To collect our sample we decide to take a stratified random sample of 20 residents from each state in the United States plus the District of Columbia and Puerto Rico. 
 \end{enumerate}
 
-In each scenario students were asked to discuss the choice of sampling scheme and to identify potential problems or difficulties. The students used the Shiny Database Sampler tool to obtain a sample from the database containing a 1\% microsample of the 2010 U.S. Census, from which they estimated mean and median age of U.S. residents. This lab was written to ensure that sampling concepts were the primary focus, with the Shiny Database Sampler acting in a supporting role. In order to avoid (sporadic) clicking of buttons to obtain samples without ever stopping to consider why the sampling approach matters, we intentionally designed the assignment to invite students to carefully consider sampling options {\it before} using the tool. The complete lab assignment can be found in Appendix \ref{labappend}. 
+In each scenario students were asked to discuss the choice of sampling scheme and to identify potential problems or difficulties. The students used the Shiny Database Sampler tool to obtain a sample from the database containing a 1\% microsample of the American Community Survey, from which they estimated mean and median age of U.S. residents. This lab was written to ensure that sampling concepts were the primary focus, with the Shiny Database Sampler acting in a supporting role. In order to avoid (sporadic) clicking of buttons to obtain samples without ever stopping to consider why the sampling approach matters, we intentionally designed the assignment to invite students to carefully consider sampling options {\it before} using the tool. The complete lab assignment can be found in Appendix \ref{labappend}. 
 
 
-\subsubsection{Capstone Project Application Overview} 
+\subsubsection{Final Project Application Overview} 
 \label{ProjectOverview} 
 
-A second application of the Shiny Database Sampler was as an optional data source for a capstone project for students of Stat 104. Students were required to work in small groups to complete a capstone project that took a statistical approach to answering a question of their choosing. In order to accommodate students' interests in the subject matter of the project, groups were allowed to pick their own data source. The only specific requirement for the project was a written report that explained the collection of bivariate data and an analysis of the association -- included the appropriate plots, inference and interpretations to answer their question of interest.
+A second application of the Shiny Database Sampler was as an optional data source for a final project for students of the introductory course. Students were required to work in small groups to complete a final project that took a statistical approach to answering a question of their choosing. In order to accommodate students' interests in the subject matter of the project, groups were allowed to pick their own data source. The only specific requirement for the project was a written report that explained the collection of bivariate data and an analysis of the association -- included the appropriate plots, inference and interpretations to answer their question of interest.
 
 Six of the groups chose to run a mock survey, using the databases available through the Shiny Database Sampler as a stand-in for a large population. These groups were required to demonstrate a strong argument for the sampling plan they used within the Shiny Database Sample. For instance, if a group wanted to know if the proportion of fatal accidents involving a drunk driver was higher in California than in Iowa; as part of the report they needed to argue why taking a stratified random sample of 100 fatal accidents per state would produce better information to answer their question than a simple random sample. Groups that gathered random samples from the Census and Accidents databases knew that they had gathered information from real life sources and they seemed genuinely engaged in the results of their projects. 
  
@@ -300,7 +301,7 @@ Active learning requires a high cognitive load, and if prior knowledge is lackin
 
 Finally, assessing student engagement with the data sources in the Shiny Database Sampler is important because higher student engagement is linked to higher academic performance and learning \citep{carini2006student}. The GAISE guidelines recommend that technological tools should be used to help teach statistical concepts and that the use of real data is important for student engagement, hence we focus on these topics \citep{GAISEcollege}. \citet{Neumann2013} found that students consider real data more interesting and engaging. The hope is that students using the Shiny Database Sampler will find the real, nationally collected, governmental data sources engaging.
 
-Student responses were collected in an anonymous survey following the group lab assignment -- as described in Section~\ref{LabOverview} -- that required students of an introductory statistics course, Stat 104, at Iowa State University to use the Shiny Database Sampler tool. Six sections of Stat 104 students were surveyed. The students were informed that the survey was not required and that no penalties or rewards were affiliated with its completion. Of the 320 students attending the lab, 265 completed the survey. 
+Student responses were collected in an anonymous survey following the group lab assignment -- as described in Section~\ref{LabOverview} -- that required students of an introductory statistics course to use the Shiny Database Sampler tool. In total, 320 students across six course sections completed the lab. The students were informed that the survey was not required and that no penalties or rewards were affiliated with its completion. Of the 320 students attending the lab, 265 completed the survey. 
 
 %-------------------------------------------------------------------------
  \subsubsection{Survey Description} 
@@ -339,7 +340,7 @@ Engagement & 1 & \it I did not enjoy working with the Census data & $-$  & \Sexp
 
 \normalsize
 
-From Table~\ref{tab:surveyquestions} we see that all response averages are positive after reverse-scoring. With the Ease items this indicates that students tend to find the tool relatively easy to operate. For frame of reference, we assume that students are comparing the difficulty of use with other educational technologies and webpages they have encountered in the past; in particular the \texttt{JMP} software used previously on their Stat 104 labs and homework. Students also tend to respond to Concept items in a manner that is affirmative that the tool connects them to sampling concepts. Students' responses are near to neutral for most items about engagement with the census data, with the exception of Engagement item 3.  The phrasing of this question seems to have led students to reconsider their engagement level and led to a consistently more positive attitude.
+From Table~\ref{tab:surveyquestions} we see that all response averages are positive after reverse-scoring. With the Ease items this indicates that students tend to find the tool relatively easy to operate. For frame of reference, we assume that students are comparing the difficulty of use with other educational technologies and webpages they have encountered in the past; in particular the \texttt{JMP} software used previously on their labs and homework. Students also tend to respond to Concept items in a manner that is affirmative that the tool connects them to sampling concepts. Students' responses are near to neutral for most items about engagement with the census data, with the exception of Engagement item 3.  The phrasing of this question seems to have led students to reconsider their engagement level and led to a consistently more positive attitude.
 
 %-------------------------------------------------------------------------
 \subsubsection{Assessment of Internal Consistency for Item Topic Sets} 
@@ -409,32 +410,32 @@ Cronbach's $\alpha$ measures internal consistency within an item set by comparin
 \end{equation}
 %
 where $Y_i$ denotes the response on the $i^{\text{th}}$ survey item ($ i = 1,... , K$), and $K$ is the number of survey items considered for internal consistency. Generally, $K=4$ for the item sets of this survey.
-Cronbach's $\alpha$ reaches a maximal value of 1, if there is perfect agreement between items (i.e. all responses to the same item set are identical). In the case that items sets are independent, the internal consistency is measured as $\alpha = 0 $. Cronbach's $\alpha$ can be negative in the situation of consistent \textit{disagreement} between responses and will approach negative infinity if there is perfect disagreement between items.  See appendix~\ref{appendCronbach} for details on the bounds for Cronbach's $\alpha$. 
-
-\citet{Nunnally1978} propose that a Cronbach's $\alpha$ of 0.7 or above should be considered as an indication of ``modest reliability''.   \citet{GeorgeMallery2003} provide the commonly used extended scale, displayed in Table~\ref{GMAlphaScale}, for interpreting internal consistency based on Cronbach's $\alpha$. \\
-
-\begin{table}[hbtp]
-\centering
-\caption{Extended scale for Cronbach's $\alpha$  (George and Mallery, 2003).} 
-\begin{tabular}{ll}
-\hline 
-Internal Consistency & Range \\
-\hline
-Excellent &  $[ 0.9 , 1.0 ]$ \\
-Good & $[ 0.8 , 0.9 )$ \\
-Acceptable & $[ 0.7 , 0.8 ) $\\
-Questionable & $[ 0.6 , 0.7 )$ \\
-Poor & $[ 0.5 , 0.6 )$ \\
-Unacceptable & $( -\infty, 0.5 )$ \\
-\hline
-\end{tabular}
-\label{GMAlphaScale}
-\end{table}
+Cronbach's $\alpha$ reaches a maximal value of 1, if there is perfect agreement between items (i.e. all responses to the same item set are identical). In the case that items sets are independent, the internal consistency is measured as $\alpha = 0 $. Cronbach's $\alpha$ can be negative in the situation of consistent \textit{disagreement} between responses and will approach negative infinity if there is perfect disagreement between items.  
+%See appendix~\ref{appendCronbach} for details on the bounds for Cronbach's $\alpha$. 
+\citet{Nunnally1978} propose that a Cronbach's $\alpha$ of 0.7 or above should be considered as an indication of ``modest reliability''. 
+% \citet{GeorgeMallery2003} provide the commonly used extended scale, displayed in Table~\ref{GMAlphaScale}, for interpreting internal consistency based on Cronbach's $\alpha$. \\
+% 
+% \begin{table}[hbtp]
+% \centering
+% \caption{Extended scale for Cronbach's $\alpha$  (George and Mallery, 2003).} 
+% \begin{tabular}{ll}
+% \hline 
+% Internal Consistency & Range \\
+% \hline
+% Excellent &  $[ 0.9 , 1.0 ]$ \\
+% Good & $[ 0.8 , 0.9 )$ \\
+% Acceptable & $[ 0.7 , 0.8 ) $\\
+% Questionable & $[ 0.6 , 0.7 )$ \\
+% Poor & $[ 0.5 , 0.6 )$ \\
+% Unacceptable & $( -\infty, 0.5 )$ \\
+% \hline
+% \end{tabular}
+% \label{GMAlphaScale}
+% \end{table}
 
 Since Cronbach's $\alpha$ is a sample estimate for the internal consistency of an item set, it experiences sampling variability. Under the assumption of normally distributed responses, Cronbach's $\alpha$ follows approximately an $F_{\nu_1,\nu_2}$, where $\nu_1 = n-1$ and $\nu_2$ is based on a function of the eigenvalues from the quadratic linear combination of the roots of the variance matrix \citep{KistnerMuller2004}. Assuming normality to construct confidence intervals for the true internal consistency of item sets would be questionable for the responses in this survey, so we have elected to bootstrap the intervals instead.
 
-Table~\ref{cronbachstuff} displays the point estimates and 95\% central bootstrap intervals for Cronbach's $\alpha$ for each item set from the student survey.  The intervals were created using quantiles of the Cronbach's $\alpha$ values from 10,000 bootstrap resamples. 
- The results indicate modest levels of internal consistency for Ease and Engagement item sets, and a lower level for the Concept item set. This is in agreement with the findings based on the fluctuation diagrams in Figure~\ref{fig:fluctuationDiagrams}. \\
+Table~\ref{cronbachstuff} displays the point estimates and 95\% central bootstrap intervals for Cronbach's $\alpha$ for each item set from the student survey.  The intervals were created using quantiles of the Cronbach's $\alpha$ values from 10,000 bootstrap resamples. The results indicate modest levels of internal consistency for Ease and Engagement item sets, and a lower level for the Concept item set. This is in agreement with the findings based on the fluctuation diagrams in Figure~\ref{fig:fluctuationDiagrams}. \\
 
 <<cronbach,echo=F, message=FALSE, include=F,eval=F,fig.width=7.5, fig.height=5, out.width='.49\\linewidth', fig.pos='hbt',fig.align='center',tidy=F, cache=TRUE, fig.show='hold', results='asis'>>=
 # coefficientalpha package uses "robust alpha" but does not tell where the estimate comes from
@@ -502,6 +503,7 @@ We next turn our attention to the polarity of the survey items; specifically we 
 # #write.csv(qu.means, "quMeans.csv",row.names=FALSE)
 qu.means <- read.csv("quMeans.csv",header=T)
 
+qu.means$set <- factor(qu.means$set, levels=c("Ease","Concept","Engagement"))
 ggplot() +
   geom_bar(aes(x=as.factor(value-3), weight=means,fill=polarity),data=qu.means,width=.5, position="dodge", size=I(2)) + 
   theme_bw() + scale_colour_brewer("", palette="Set1") + 
@@ -640,54 +642,55 @@ The Shiny Database Sampler could naturally be updated to access additional datab
 % %-------------------------------------------------------
 % \appendix (MOVED TO Appendix1.Rnw File)
 % %-------------------------------------------------------
-% \section{Appendix: Lab Assignment}
-% \label{labappend}
-% 
-% For this activity you will be using a tool called the Shiny Database Sampler to take a random sample of United States residents from US census data. The census data is the Public Use Microdata Sample (PUMS) which is a 3 million person subset of the entire Census data.  For this activity we treat our samples as though they are selected from the full census records.  \\ 
-% 	
-% We are going to explore how these random sampling plans relate to the goals of a sample survey. The tool will allow you to define either a simple random sampling plan or a stratified random sampling plan. In the following two scenarios we will explore the advantages and disadvantages of these two sampling plans. Access the tool at \url{http://shiny.stat.iastate.edu/karstenm/ShinyDatabaseSampler}. \\	 
-% 
-% \underline{Scenario 1:} Suppose that our goal is to estimate the mean age of all US residents. Similar to polling organizations we have a budget that allows us to survey around 1000 people. To collect our sample we decide to take a simple random sample of 1040 US residents. \\
-% 
-% \begin{enumerate}[(a)]
-% \item Is this study and example of an experiment or an observational study?  Explain your answer.
-% \item	Your colleague Bob claims that we are wasting our budget to get only 1040 people using random sampling. He says that we could get 20000 responses to the survey if we invested that money into a mailing campaign in Minneapolis. Explain why the random selection is important.
-% \item	Another colleague, Jill, asks why we do not stratify by state when we take the sample so that we get 20 people from each of the 50 states along with Puerto Rico and the District of Columbia. Explain why this idea would not create a representative sample to pursue our goal.
-% \end{enumerate}
-% 
-% Now that we have decided on our sampling plan, let's go collect our data.  The Shiny Database Sampler needs to be told 4 pieces of information in order to collect census records the way you want. (1) Choose the database called ``Census'', (2) select the ``simple random sample'' option, (3) enter a random seed, any number between 1 and 10000, you can do this by rolling a 10-sided die 4 times and (4) lastly tell it that we want ``1040'' random draws. Once you have drawn your samples the page will display basic summary statistics for the variables in the census.\\
-% 
-% \begin{enumerate}[(a)]
-% \setcounter{enumi}{3}
-% \item Report the 5-number summary and sample mean age.
-% \item	Use the 5-number summary to construct a box plot of age.
-% \item	Go to the ``Visualize'' tab.  Choose age as your Response Variable to Plot.  What type of variable is this?  By clicking on Make My Plot? a histogram of the sample of ages will be displayed.  Describe the shape of the data distribution of age.
-% \item	Is the relationship between the sample mean and sample median consistent with your description of shape?  Explain briefly.
-% \item	If our goal was to not only estimate the mean age of all the U.S. residents but also come up with estimates of the median age of all residents in each of the 50 states, plus the District of Columbia and Puerto Rico what is a drawback of using the simple random sample of 1040?  Hint: Set the Data Table to display 100 records per page and go to the page that has ``states'' 10 and 11 (Delaware and the District of Columbia).
-% \end{enumerate}
-% 
-% \underline{Scenario 2:} Suppose now that our goal has changed.  Now we wish to investigate the association between age and state of residency. We want to compare the median ages for different states. We still have a budget that allows us to survey around 1040 people. To collect our sample we decide to take a stratified random sample of 20 residents from each state in the United States plus the District of Columbia and Puerto Rico. 
-% 
-% \begin{enumerate}[(a)]
-% \setcounter{enumi}{8}
-% \item  Explain in general why collecting a stratified random sample is a better plan than a simple random sample for answering this question.  
-% \end{enumerate}
-% 
-% Now that we have decided on our new sampling plan, let's go collect our data.  The Shiny Database Sampler will need to be told 5 pieces of information in order to collect census records the way you want this time. (1) Choose the database called ``Census'', (2) select the ``stratified random sample'' option, (3) enter a random seed, any number between 1 and 10000, you can do this by rolling a 10-sided die 4 times, (4) select ``state'' as strata variable and (5) lastly tell it that we want ``20'' random draws from each state, plus the District of Columbia and Puerto Rico.  \\
-% 
-% It will take a minute or two to collect these data. It is sifting through millions of records and randomly selecting them from within state groups after all! Once you have drawn your samples you can take a peek at your data set in the main panel of the webpage. You will be able to answer the following questions using the summaries provided on the webpage.  \\
-% 
-% You will notice that the summaries are all broken down by state, but the states are not given names, they are given a code number.  This is done on the census to save computer storage space (saving a ``19'' is much smaller than ``Iowa'').  A list of all the state codes is available at \url{https://www.census.gov/geo/reference/ansi\_statetables.html} (Click on FIPS Codes for the States and the District of Columbia).\\ 
-% 
-% 
-% 
-% \begin{enumerate}[(a)]
-% \setcounter{enumi}{9}
-% \item Report the mean and 5-number summary for the age of the sample from the state of Iowa (\texttt{state = 19}).
-% \item	Report the mean and 5-number summary for the age of the sample from the state of Alaska (\texttt{state = 2}).
-% \item	Compare the distribution of ages in Alaska and Iowa using the values from parts j and k.
-% \item	Making comparisons as we have done above would become tedious if we wanted to compare ages between all pairs of states in the country.  What would be a good way to visually display this information so aid in making these comparisons? Explain your answer.
-% \end{enumerate}
+\appendix
+\section{Appendix: Lab Assignment}
+\label{labappend}
+
+For this activity you will be using a tool called the Shiny Database Sampler to take a random sample of United States residents from US census data from the American Community Survey. The census data is the Public Use Microdata Sample (PUMS) which is a 3 million person subset of the entire Census data.  For this activity we treat our samples as though they are selected from the full census records.  \\
+
+We are going to explore how these random sampling plans relate to the goals of a sample survey. The tool will allow you to define either a simple random sampling plan or a stratified random sampling plan. In the following two scenarios we will explore the advantages and disadvantages of these two sampling plans. Access the tool at \url{http://dataviz.miamioh.edu/ShinyDBSampler/}. \\
+
+\underline{Scenario 1:} Suppose that our goal is to estimate the mean age of all US residents. Similar to polling organizations we have a budget that allows us to survey around 1000 people. To collect our sample we decide to take a simple random sample of 1040 US residents. \\
+
+\begin{enumerate}[(a)]
+\item Is this study and example of an experiment or an observational study?  Explain your answer.
+\item	Your colleague Bob claims that we are wasting our budget to get only 1040 people using random sampling. He says that we could get 20000 responses to the survey if we invested that money into a mailing campaign in Minneapolis. Explain why the random selection is important.
+\item	Another colleague, Jill, asks why we do not stratify by state when we take the sample so that we get 20 people from each of the 50 states along with Puerto Rico and the District of Columbia. Explain why this idea would not create a representative sample to pursue our goal.
+\end{enumerate}
+
+Now that we have decided on our sampling plan, let's go collect our data.  The Shiny Database Sampler needs to be told three pieces of information in order to collect census records the way you want. (1) Choose the database called ``American Community Survey'', (2) select the ``simple random sample'' option, and (3) lastly tell it that we want ``1040'' random draws. Once you have drawn your samples the page will display basic summary statistics for the variables in the census.\\
+
+\begin{enumerate}[(a)]
+\setcounter{enumi}{3}
+\item Report the 5-number summary and sample mean age.
+\item	Use the 5-number summary to construct a box plot of age.
+\item	Go to the ``Visualize'' tab.  Choose age as your Response Variable to Plot.  What type of variable is this? A histogram of the sample of ages will be displayed.  Describe the shape of the data distribution of age.
+\item	Is the relationship between the sample mean and sample median consistent with your description of shape?  Explain briefly.
+\item	If our goal was to not only estimate the mean age of all the U.S. residents but also come up with estimates of the median age of all residents in each of the 50 states, plus the District of Columbia and Puerto Rico what is a drawback of using the simple random sample of 1040?
+\end{enumerate}
+
+\underline{Scenario 2:} Suppose now that our goal has changed.  Now we wish to investigate the association between age and state of residency. We want to compare the median ages for different states. We still have a budget that allows us to survey around 1040 people. To collect our sample we decide to take a stratified random sample of 20 residents from each state in the United States plus the District of Columbia and Puerto Rico.
+
+\begin{enumerate}[(a)]
+\setcounter{enumi}{8}
+\item  Explain in general why collecting a stratified random sample is a better plan than a simple random sample for answering this question.
+\end{enumerate}
+
+Now that we have decided on our new sampling plan, let's go collect our data.  The Shiny Database Sampler will need to be told four pieces of information in order to collect census records the way you want this time. (1) Choose the database called ``American Community Survey'', (2) select the ``stratified random sample'' option, (3) select ``state'' as strata variable and (4) lastly tell it that we want ``20'' random draws from each state, plus the District of Columbia and Puerto Rico.  \\
+
+It will take a few seconds to collect these data. It is sifting through millions of records and randomly selecting them from within state groups after all! Once you have drawn your samples you can take a peek at your data set in the main panel of the webpage. You will be able to answer the following questions using the summaries provided on the webpage.  \\
+
+%You will notice that the summaries are all broken down by state, but the states are not given names, they are given a code number.  This is done on the census to save computer storage space (saving a ``19'' is much smaller than ``Iowa'').  A list of all the state codes is available at \url{https://www.census.gov/geo/reference/ansi\_statetables.html} (Click on FIPS Codes for the States and the District of Columbia).\\
+
+
+
+\begin{enumerate}[(a)]
+\setcounter{enumi}{9}
+\item Report the mean and 5-number summary for the age of the sample from Iowa.
+\item	Report the mean and 5-number summary for the age of the sample from Alaska.
+\item	Compare the distribution of ages in Alaska and Iowa.
+\item	Making comparisons as we have done above would become tedious if we wanted to compare ages between all pairs of states in the country. What would be a good way to visually display this information so aid in making these comparisons? Explain your answer.
+\end{enumerate}
 % 
 % 
 % % %------------------------------------------------------------------
