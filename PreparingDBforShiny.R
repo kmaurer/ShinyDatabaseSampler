@@ -35,37 +35,37 @@ library(sas7bdat)
 # pums_db %>%
 #   group_by(ST) %>%
 #   summarize()
-# 
-# #
-# FARS_list <- list(
-#   dat2008 = read.sas7bdat("C:/Users/maurerkt/Documents/Databases/FARS/FSAS2008/accident.sas7bdat"),
-#   dat2009 = read.sas7bdat("C:/Users/maurerkt/Documents/Databases/FARS/FSAS2009/accident.sas7bdat"),
-#   dat2010 = read.sas7bdat("C:/Users/maurerkt/Documents/Databases/FARS/FSAS2010/accident.sas7bdat"),
-#   dat2011 = read.sas7bdat("C:/Users/maurerkt/Documents/Databases/FARS/FSAS2011/accident.sas7bdat"),
-#   dat2012 = read.sas7bdat("C:/Users/maurerkt/Documents/Databases/FARS/FSAS2012/accident.sas7bdat"),
-#   dat2013 = read.sas7bdat("C:/Users/maurerkt/Documents/Databases/FARS/FARS2013NationalSAS/accident.sas7bdat"),
-#   dat2014 = read.sas7bdat("C:/Users/maurerkt/Documents/Databases/FARS/FARS2014NationalSAS/accident.sas7bdat"),
-#   dat2015 = read.sas7bdat("C:/Users/maurerkt/Documents/Databases/FARS/FARS2015NationalSAS/accident.sas7bdat"),
-#   dat2016 = read.sas7bdat("C:/Users/maurerkt/Documents/Databases/FARS/FARS2016NationalSAS/accident.sas7bdat"),
-#   dat2017 = read.sas7bdat("C:/Users/maurerkt/Documents/Databases/FARS/FARS2017NationalSAS/accident.sas7bdat")
-# )
-# 
-# dat1 <- NULL
-# for(year in 2013:2014){
-#   dat1 <- rbind(dat1, read.sas7bdat(paste0("C:/Users/maurerkt/Downloads/FARS",year,"NationalSAS/accident.sas7bdat")))
-# }
-# 
-# dat2 <- NULL
-# for(year in 2015:2017){
-#   dat2 <- rbind(dat2, read.sas7bdat(paste0("C:/Users/maurerkt/Downloads/FARS",year,"NationalSAS/accident.sas7bdat")))
-# }
-# FARS_all <- FARS_list[[1]]
-# for(i in 2:10){
-#   all_cols <- unique(names(FARS_all),names(FARS_list[[i]]))
-#   in_all <- all_cols[all_cols %in% names(FARS_all)  & all_cols %in% names(FARS_list[[i]])]
-#   FARS_all <- rbind(select(FARS_all, in_all),select(FARS_list[[i]], in_all))
-# }
-# head(FARS_all)
+#
+#
+FARS_list <- list(
+  dat2008 = read.sas7bdat("C:/Users/maurerkt/Documents/Databases/FARS/FSAS2008/accident.sas7bdat"),
+  dat2009 = read.sas7bdat("C:/Users/maurerkt/Documents/Databases/FARS/FSAS2009/accident.sas7bdat"),
+  dat2010 = read.sas7bdat("C:/Users/maurerkt/Documents/Databases/FARS/FSAS2010/accident.sas7bdat"),
+  dat2011 = read.sas7bdat("C:/Users/maurerkt/Documents/Databases/FARS/FSAS2011/accident.sas7bdat"),
+  dat2012 = read.sas7bdat("C:/Users/maurerkt/Documents/Databases/FARS/FSAS2012/accident.sas7bdat"),
+  dat2013 = read.sas7bdat("C:/Users/maurerkt/Documents/Databases/FARS/FARS2013NationalSAS/accident.sas7bdat"),
+  dat2014 = read.sas7bdat("C:/Users/maurerkt/Documents/Databases/FARS/FARS2014NationalSAS/accident.sas7bdat"),
+  dat2015 = read.sas7bdat("C:/Users/maurerkt/Documents/Databases/FARS/FARS2015NationalSAS/accident.sas7bdat"),
+  dat2016 = read.sas7bdat("C:/Users/maurerkt/Documents/Databases/FARS/FARS2016NationalSAS/accident.sas7bdat"),
+  dat2017 = read.sas7bdat("C:/Users/maurerkt/Documents/Databases/FARS/FARS2017NationalSAS/accident.sas7bdat")
+)
+
+dat1 <- NULL
+for(year in 2013:2014){
+  dat1 <- rbind(dat1, read.sas7bdat(paste0("C:/Users/maurerkt/Downloads/FARS",year,"NationalSAS/accident.sas7bdat")))
+}
+
+dat2 <- NULL
+for(year in 2015:2017){
+  dat2 <- rbind(dat2, read.sas7bdat(paste0("C:/Users/maurerkt/Downloads/FARS",year,"NationalSAS/accident.sas7bdat")))
+}
+FARS_all <- FARS_list[[1]]
+for(i in 2:10){
+  all_cols <- unique(names(FARS_all),names(FARS_list[[i]]))
+  in_all <- all_cols[all_cols %in% names(FARS_all)  & all_cols %in% names(FARS_list[[i]])]
+  FARS_all <- rbind(select(FARS_all, in_all),select(FARS_list[[i]], in_all))
+}
+head(FARS_all)
 # # dbWriteTable(con, "FARS", FARS_all)
 
 
@@ -123,7 +123,7 @@ dbinfo$FARS$keeper_cols <- c('Number of Fatalities In Crash'='FATALS',
                              'Crash Year'='YEAR', 'Crash Month'='MONTH',
                              'Crash Day'='DAY','Crash Hour'='HOUR',
                              'Day of Week'='DAY_WEEK',
-                             'Number of Drunk Drivers in Crash'='DRUNK_DR',
+                             'Drunk Drivers in Crash'='DRUNK_DR',
                              'National Highway System'='NHS',
                              'Atmospheric Condition'='WEATHER')
 # Indeces for 

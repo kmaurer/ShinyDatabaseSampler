@@ -1,3 +1,5 @@
+library(tidyverse)
+
 ### Define page layout with side panel and main panel (in which we will put multiple tabs)
 shinyUI(pageWithSidebar(
   
@@ -78,8 +80,8 @@ shinyUI(pageWithSidebar(
     ),
     
     
-    #--------------------------------------------- 
-    ### Conditional panels for input.tabs == 'Visualize' (Tab 2)
+    #---------------------------------------------     
+    ### Conditional panels for input.tabs == 'Sample and Summarize' (Tab 1)
     
     conditionalPanel(
       condition = "input.tabs == 'Visualize'",
@@ -89,39 +91,57 @@ shinyUI(pageWithSidebar(
                    inline = TRUE, selected=2)
     ),   
     
+    # Select Response Variable and type
     conditionalPanel(
       condition = "input.tabs == 'Visualize'",
       uiOutput("var1")
     ),
     
+    # Select explanatory Variable and type
     conditionalPanel(
       condition = "input.tabs == 'Visualize' & input.nvar==2",
       uiOutput("var2")
     ),
     
+    # Select explanatory Variable and type
     conditionalPanel(
       condition = "input.tabs == 'Visualize'",
       checkboxInput(inputId="reorder_check", 
                     label="Sort Categories in \nDescending Order?",
                     value=TRUE)
-    )
-  ), 
+    ),
+    
+    # conditionalPanel(
+    #   condition = "input.tabs == 'Visualize'",
+    #   actionButton("PlotButton", "Update My Plot!")
+    # ),
+    
+    
+    #---------------------------------------------  
+    
+    ### Non-Conditional sidepanel items ###      
+    #add download csv button
+    downloadButton(outputId='downloadData', label='Download Data')
+    
+  ),
   
+  
+  #------------------------------------------------------------------------------------------------------
   ### Define Objects in main panel with multiple tabs
   mainPanel(
     
     tabsetPanel(
       tabPanel("Sample and Summarize", 
                h4("Data Table"),
-               dataTableOutput("view")
-               # h4("Basic Summary"),
-               #   verbatimTextOutput("summary")
+               dataTableOutput("view"),
+               h4("Basic Summary"),
+               verbatimTextOutput("summary")
       ), 
       tabPanel("Visualize", 
                h4("Basic Plot"),
-               plotOutput("MainPlot",height = "600px")
+               plotOutput("MainPlot",height = "700px")
       ), 
       id="tabs"
     )
   )
-)) 
+))

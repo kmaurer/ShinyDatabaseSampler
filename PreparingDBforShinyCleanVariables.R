@@ -1,7 +1,6 @@
 library(shiny)
 library(tidyverse)
 library(datasets)
-library(plyr)
 library(DBI)
 library(RMySQL)
 library(lubridate)
@@ -24,9 +23,8 @@ con <- dbConnect(MySQL(),
                  dbname='shinyDBSampler',
                  host='10.34.225.221')
 ?db_write_table()
-dbWriteTable()
 
-setwd("C:\\Users\\maurerkt\\Documents\\Databases\\pums")
+# setwd("C:\\Users\\maurerkt\\Documents\\Databases\\pums")
 fips <- read.csv("C:\\Users\\maurerkt\\Documents\\GitHub\\ShinyDatabaseSampler\\StateCountyFIPS.csv")
 fips_states <- unique(fips[,c("StateName","StateFIPS")])
 PUMS <- rbind(read_csv("psam_pusa.csv"),read_csv("psam_pusb.csv"))
@@ -84,24 +82,24 @@ head(FARS_all)
 
 fars_clean <- FARS_all %>%
   left_join(fips, by=c("STATE"="StateFIPS", "COUNTY"="CountyFIPS")) %>%
-  select(one_of(c("StateName","CountryName","LATITUDE","LONGITUD",
-                  "YEAR","MONTH","DAY","HOUR","DAY_WEEK",
+  select(one_of(c("YEAR","MONTH","DAY","HOUR","DAY_WEEK",
+                  "StateName","CountryName","LATITUDE","LONGITUD",
                   "FATALS","PERSONS","VE_TOTAL",
                   "DRUNK_DR","WEATHER"))) %>%
   mutate(MONTH = factor(MONTH, levels=1:12, labels=month.abb),
          DAY_WEEK = factor(DAY_WEEK,levels=c(1:7,9), labels=c("Sun","Mon","Tue","Wed","Thu","Fri","Sat","Unknown")),
          WEATHER = factor(WEATHER,levels=c(1:12,98,99),labels=c("Clear","Rain","Sleet","Snow","Fog",
                                                                 "Severe Crosswind","Sandstorm","Other","Unknown",
-                                                                "Cloudy","Blowing Snow","Freezing Rain","Unknown","Unknown"))) %>%
+                                                                "Cloudy","Blowing Snow","Freezing Rain","Unknown","Unknown")),
+         DRUNK_DR = factor(ifelse(DRUNK_DR > 0, "Yes","No"))) %>%
   arrange(YEAR,MONTH,DAY,HOUR,StateName,CountryName) %>%
-  dplyr::rename(state=StateName, county=CountryName,
-         lat=LATITUDE, long=LONGITUD,
-         year=YEAR,month=MONTH,day=DAY,
-         weekday=DAY_WEEK,fatalities=FATALS,
+  dplyr::rename( year=YEAR,month=MONTH,day=DAY,hour=HOUR,
+         weekday=DAY_WEEK, state=StateName, county=CountryName,
+         lat=LATITUDE, long=LONGITUD, fatalities=FATALS,
          people=PERSONS,vehicles=VE_TOTAL,
          drunk_drivers=DRUNK_DR,weather=WEATHER)
 
-#!# need to filter out lat/longs way outside usa, also need to categorize as involved/didn't involve DD
+#!# need to filter out lat/longs way outside usa
 
 str(fars_clean)
 head(fars_clean)
@@ -155,21 +153,28 @@ dbinfo$acs2017clean$plot_vars <- c("State"= "state",
                                      "Employer Provides Health Insurance"="emp_hlth",
                                      "Work Commute (minutes)"="commute_mins",
                                      "Work per week (hours)"="work_hours")
-dbinfo$fars2008_2017clean$plot_vars <- c("State" = "state",
+dbinfo$fars2008_2017clean$plot_vars <- c("Year"="year",
+                                         "Month"="month",
+                                         "Day of Month"="day",
+                                         "Hour of Day" = "hour",
+                                         "Day of Week" = "weekday",
+                                         "State" = "state",
                                          "County" = "county",
                                          "Latitude"="lat", 
                                          "Longitude"="long",
-                                         "Year"="year",
-                                         "Month"="month",
-                                         "Day of Month"="day",
-                                         "Day of Week" = "weekday",
                                          "Number of Fatalities"="fatalities",
                                          "Number of People Involved"="people",
                                          "Number of Vehicle Involved"="vehicles",
-                                         "Number of Drunk Drivers Involved"="drunk_drivers",
+                                         "Drunk Drivers Involved"="drunk_drivers",
                                          "Weather Conditions"="weather" )
 
-save(dbinfo, file="ShinyDBSamplerAppInfo.Rdata")
+dbinfo$acs2017clean$ordinal_vars <- list(marital = c("Never Married","Married","Separated","Divorced","Widowed"))
+dbinfo$fars2008_2017clean$ordinal_vars <- list(year=as.character(2008:2017),
+                                               month=month.abb,
+                                               weekday=wday(1:7, label=T),
+                                               weather=c("Clear","Cloudy","Rain","Sleet","Snow","Severe Crosswind","Fog","Other","Unknown"))
+
+# save(dbinfo, file="ShinyDBSamplerAppInfo.Rdata")
 
 
 #----------------------------
@@ -178,11 +183,13 @@ SRS <- function(n, dbtabname, seed=NA){
   if(!is.na(seed)) set.seed(seed)
   SRSindex <- sample(1:dbinfo[[dbtabname]]$N,n,replace = FALSE)
   # run query to pull draws
-  sampall <- dbGetQuery(con,  sprintf("select * from %s WHERE row_names in (%s)",dbtabname, paste(SRSindex, collapse=",")))
+  sampall <- dbGetQuery(con,  sprintf("select * from %s WHERE row_names in (%s)",dbtabname, paste(SRSindex, collapse=","))) %>% 
+    order_vars(dbtabname)
   return(sampall)
 }
 dbtabname="fars2008_2017clean"
-sample_data <- SRS(10,"fars2008_2017clean")
+sample_data <- SRS(1000,"fars2008_2017clean")
+str(sample_data)
 head(sample_data)
 #----------------------------
 StratSampler <-  function(nper, dbtabname, stratcol, seed=NA){
@@ -196,7 +203,28 @@ StratSampler <-  function(nper, dbtabname, stratcol, seed=NA){
     sample_n(nper)
   # Run query for selected rows
   sampall <- dbGetQuery(con,  sprintf("select * from %s WHERE row_names in (%s)",dbtabname, paste(strat_rows$row_names, collapse=","))) %>%
-    arrange_(stratcol)
+    arrange_(stratcol) %>% 
+    order_vars(dbtabname)
   return(sampall)
 }
-data_sub <- StratSampler(nper=100,dbtabname="acs2017clean",stratcol="state")
+sample_data <- StratSampler(nper=100,dbtabname="acs2017clean",stratcol="state")
+
+
+sum_table <- function(sample_data,max_show=12){
+  sum_tab <- "NA"
+  for(j in 2:ncol(sample_data)){
+    if(is.numeric(sample_data[,j])){
+      tmp_summary <- summary(sample_data[,j]) 
+      sum_tab[j-1] <- paste0(names(sample_data[j]),"  ",paste0(c(names(tmp_summary),"sd"),"=",c(round(tmp_summary,3),round(sd(sample_data[,j]),3)),collapse=",  "))
+    } 
+    if(is.character(sample_data[,j])|is.factor(sample_data[,j])){
+      tmp_summary <- summary(factor(sample_data[,j]))
+      if(length(tmp_summary) > max_show) tmp_summary <- c(tmp_summary[1:max_show],"...")
+      sum_tab[j-1] <- paste0(names(sample_data[j]),"  ", paste0(names(tmp_summary),":",tmp_summary,collapse=",  "))
+    }
+  }
+  paste(sum_tab, collapse="\n")
+}
+
+writeLines(sum_table(sample_data))
+
