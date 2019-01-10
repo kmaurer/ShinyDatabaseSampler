@@ -212,13 +212,13 @@ Statistics education has been rapidly evolving in the past decade with respect t
 
 \citet{Doi2016web} used \texttt{shiny} to create a collection of apps for their particular course needs. They fall largely in the footsteps of previous web application for statistics education, such as the collection of Javascript Applets by \citet{chance2006using} and Statkey by \citet{morgan2014statkey}, but are built in the \texttt{R} environment; a setting where more statistician feel comfortable to work and create cumstomized course content. Indeed, many others in the statistics education community have been creating custom apps for -- and in some cases with -- their students (\citealt{Adrian2018}; \citealt{hare2016}; \citealt{BOAST}). 
 
-In addition to web application for teaching concepts, there are also many existing data repositories for instructors to access real data for use in the statistics classroom. These include the Data and Story Library \citep{DASL} and its Australian counterpart, OzDASL \citep{OzDASL}, the Data Archives of the Journal of Statistics Education \citep{JSErepo}, CAUSE Web Repository \citep{CAUSErepo}, and Many Eyes \citep{ManyEyes}. These repositories are wonderful for accessing many real data sets but many of the data sets currently available are quite small in scale.
+In addition to web application for teaching concepts, there are also many existing data repositories for instructors to access real data for use in the statistics classroom. These include the Data and Story Library \citep{DASL} and its Australian counterpart, Slapdash \citep{OzDASL}, the Data Archives of the Journal of Statistics Education \citep{JSErepo}, CAUSE Web Repository \citep{CAUSErepo}, and Many Eyes \citep{ManyEyes}. These repositories are wonderful for accessing many real data sets but many of the data sets currently available are quite small in scale.
 
 \citet{Finzer2007} argue that in curricula for introductory level statistics ``(w)hat seems to us to be missing are data sets-especially large and highly multivariate data sets-that are ripe for exploration and conjecture driven by the students' intrigue, puzzlement and desire for discovery'' \citep[p.1]{Finzer2007}. Large, real data sources are becoming increasingly available, but tend to be less easily accessible for the typical introductory student. A major contributor to this trend is the Freedom of Information Act which to ensures that non-classified data from the United States government is publicly available \citep{FOIA}. The online government resources at \url{www.data.gov/} \citep{DataGov}, \url{www.census.gov/} \citep{Census}, \url{www.nhtsa.gov/} \citep{NHTSA} and \url{www.cdc.gov/} \citep{CDC} are all locations of massive data stores. Governmental data sets contain rich information related to many socially relevant issues, making them prime candidates for engaging student interest. However, in many of these cases the size of the datasets and technical access issues may act as a barrier to connecting undergraduate statistics students with these big data sources. 
 
 %\citet{jacobs2009} speaks of the difficulties associated with using, ``data whose size forces us to look beyond the tried-and-true methods that are prevalent at that time''. Despite the gains in available of computational resources, there are still some data tasks that would prove unweildy to distribute to the personal computers of New data technologies are needed in order to allow introductory statistics students to interact with big data sources, such as the governmental databases. 
 
-We propose that introductory students could be connected to truely big datasets by applying a fundemental method they will likely be learning in class: random sampling. This paper discusses the construction and functionality of the Shiny Database Sampler; a web-based application that allows students to pull random samples from large databases. Then, details of the implementation within a lab assignment and course project for an introductory statistics course are discussed. Lastly, the survey responses from 265 introductory statistics students whom used the Shiny Database Sampler for the lab assignment are analyzed to evaluate the software.
+We propose that introductory statistics students can connect to truly big datasets with software tools designed for applying a fundamental method already embedded in the curriculum: random sampling. This paper discusses the construction and functionality of the Shiny Database Sampler; a web-based application that allows students to pull random samples from large databases. Then, details of the implementation within a lab assignment and course project for an introductory statistics course are discussed. Lastly, the survey responses from 265 introductory statistics students whom used the Shiny Database Sampler for the lab assignment are analyzed to evaluate the software.
 
 %-----------------------------------------------------------------------------------
 \section{Shiny Database Sampler}
@@ -280,9 +280,9 @@ The \textit{Visualize} tab of the interface is designed to construct basic plots
 Response Variable & Explanatory Variable & Default Plot \\
 \hline
 Numerical & None & Histogram \\
-Categorical & None & Barchart \\
+Categorical & None & Barplot \\
 Numerical & Numerical & Scatterplot \\
-Categorical & Categorical & Stacked Barchart \\
+Categorical & Categorical & Stacked Barplot \\
 Numerical & Categorical & Side-by-side Boxplots \\
 \hline
 \end{tabular}
@@ -296,7 +296,7 @@ Numerical & Categorical & Side-by-side Boxplots \\
 \subsection{Applications}
 \label{Applications}
 
-The Shiny Database Sampler was developed for applications in statistics education and was implemented in the initial stages of development within the curriculum of an introductory statistics course. An alpha version of the software was used within a section of an introductory statistics course at a large public midwestern univer for a group lab assignment and a course project. The course was an algebra-based introductory course for non-STEM majors. Later, a beta version was extended to be used in a lab assignment for six more sections of the same course. These two applications demonstrate possible uses of the Shiny Database Sampler. 
+The Shiny Database Sampler was developed for applications in statistics education and was implemented in the initial stages of development within the curriculum of an introductory statistics course. An alpha version of the software was used within a section of an introductory statistics course at a large public midwestern university for a group lab assignment and a course project. The course was an algebra-based introductory course for non-STEM majors. Later, a beta version was extended to be used in a lab assignment for six more sections of the same course. These two applications demonstrate possible uses of the Shiny Database Sampler. 
 
 %-------------------------------------------------------------------------
  \subsubsection{Lab Application Overview} 
@@ -339,7 +339,7 @@ Student responses were collected in an anonymous survey following the group lab 
  \subsection{Survey Results} 
 
 After completing the lab assignment, students were asked to respond to a survey consisting of twelve statements (referred to as \textit{items} in the following, see Table~\ref{tab:surveyquestions} for an overview). For each statement, students were asked for feedback on their level of agreement on a Likert scale from strongly disagree to strongly agree. 
-The twelve items were designed to assess student opinion within three topics of four items each: ease of use, connection to sampling concepts, and engagement with the census data.  We will refer to these as the \textit{Ease}, \textit{Concept} and \textit{Engagement} item sets.  For each group of four items, two were worded positively and two were worded negatively. Introducing negation with half of the items was done to reduce the response bias associated with \textit{acquiescence} -- the tendency to respond positively irrespective of the item content due \citep{Furnham1986}. Responses were scored as -2 (strongly disagree), -1 (disagree), 0 (neutral), 1 (agree), 2 (strongly agree). Table~\ref{tab:surveyquestions} below displayes the survey items, response averages and standard deviations.\\
+The twelve items were designed to assess student opinion within three topics of four items each: ease of use, connection to sampling concepts, and engagement with the census data.  We will refer to these as the \textit{Ease}, \textit{Concept} and \textit{Engagement} item sets.  For each group of four items, two were worded positively and two were worded negatively. Introducing negation with half of the items was done to reduce the response bias associated with \textit{acquiescence} -- the tendency to respond positively irrespective of the item content due \citep{Furnham1986}. Responses were scored as -2 (strongly disagree), -1 (disagree), 0 (neutral), 1 (agree), 2 (strongly agree). Table~\ref{tab:surveyquestions} below displays the survey items, response averages and standard deviations.\\
 %Responses for negatively worded items were reverse-scored for the purposes of analysis.\\
 
 \begin{table}[hbtp]
@@ -382,7 +382,11 @@ ggplot()+
   facet_grid(subitem~set)+
   scale_fill_manual("Item Polarity", values=brewer.pal(3,"Set1")[1:2])+
   theme_bw() + guides(fill = guide_legend(reverse=T))+
-  labs(x="Item Response",y="Count")
+  scale_x_continuous(breaks=-2:2, labels=c("Strongly Disagree","Disagree","Neutral","Agree","Strongly Agree"))+
+  theme(axis.text.x = element_text(angle=45, hjust=1),
+        panel.spacing.x = unit(1, "lines"),
+        axis.title.x=element_blank())+
+  labs(y="Count")
   
 @
 
