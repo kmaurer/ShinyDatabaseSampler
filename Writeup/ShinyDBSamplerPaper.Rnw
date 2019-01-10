@@ -57,7 +57,7 @@
 
 \if1\blind
 {
-\title{A \texttt{shiny} New Opportunity for Interaction with Big Data in Undergraduate Education}
+\title{A \texttt{shiny} Opportunity for Interaction with Big Data in Undergraduate Education}
 \author{Author A, Author B\\ Institutions Blinded}
   \maketitle
 } \fi
@@ -245,7 +245,7 @@ The sidebar panel contains several fields and buttons for selecting and executin
 
 \begin{figure}[h]
 \centering
-\includegraphics[keepaspectratio=TRUE,width=.95\textwidth]{SampleAndSummarizeWithPanelLabels2.png}
+\includegraphics[keepaspectratio=TRUE,width=.95\textwidth]{SampleAndSummarizeWithPanelLabels1.png}
 \caption[\textit{Sample and Summarize} tab screenshot.]{Shiny Database Sampler layout for \textit{Sample and Summarize} tab.} 
 \label{fig:samplesummarizetab}
 \end{figure}
@@ -342,7 +342,9 @@ After completing the lab assignment, students were asked to respond to a survey 
 The twelve items were designed to assess student opinion within three topics of four items each: ease of use, connection to sampling concepts, and engagement with the census data.  We will refer to these as the \textit{Ease}, \textit{Concept} and \textit{Engagement} item sets.  For each group of four items, two were worded positively and two were worded negatively. Introducing negation with half of the items was done to reduce the response bias associated with \textit{acquiescence} -- the tendency to respond positively irrespective of the item content due \citep{Furnham1986}. Responses were scored as -2 (strongly disagree), -1 (disagree), 0 (neutral), 1 (agree), 2 (strongly agree). Table~\ref{tab:surveyquestions} below displays the survey items, response averages and standard deviations.\\
 %Responses for negatively worded items were reverse-scored for the purposes of analysis.\\
 
-\begin{table}[hbtp]
+Figure~\ref{fig:simpleBarplots} displays the distribution of survey responses, colored by polarity of the survey item. With the Ease items this indicates that students tend to find the tool relatively easy to operate; agreeing with positive statements and disagreeing with negative statements. For frame of reference, we assume that students are comparing the difficulty of use with other educational technologies and webpages they have encountered in the past; in particular the \texttt{JMP} software used previously on their labs and homework. Students also tend to respond to Concept items in a manner that is affirmative that the tool connects them to sampling concepts. Students' responses are near to neutral for most items about engagement with the census data, with the exception of Engagement Item 1.  The phrasing of this question seems to have led students to reconsider their engagement level and led to a consistently more positive attitude. The response distributions indicate that on average students found the Shiny Database Sampler easy to use, found that the tool connected them to sampling concepts and felt moderately engaged with the census data that was accessed with the application. 
+
+\begin{table}[h]
 \centering
 \caption[Survey items and response summaries.]{Survey items and response summaries.}
 \small
@@ -373,9 +375,8 @@ Engagement & 3 & \it I did not enjoy working with the Census data & $-$  & \Sexp
 
 \normalsize
 
-Figure~\ref{fig:simpleBarplots} displays the distribution of survey responses, colored by polarity of the survey item. With the Ease items this indicates that students tend to find the tool relatively easy to operate; agreeing with positive statements and disagreeing with negative statements. For frame of reference, we assume that students are comparing the difficulty of use with other educational technologies and webpages they have encountered in the past; in particular the \texttt{JMP} software used previously on their labs and homework. Students also tend to respond to Concept items in a manner that is affirmative that the tool connects them to sampling concepts. Students' responses are near to neutral for most items about engagement with the census data, with the exception of Engagement Item 1.  The phrasing of this question seems to have led students to reconsider their engagement level and led to a consistently more positive attitude. The response distributions indicate that on average students found the Shiny Database Sampler easy to use, found that the tool connected them to sampling concepts and felt moderately engaged with the census data that was accessed with the application. 
 
-<<simpleBarplots,echo=F, warning=FALSE, message=FALSE, include=T,eval=T,fig.width=7, fig.height=4, out.width='.99\\linewidth', fig.pos='H',fig.align='center',tidy=F, cache=TRUE, fig.show='hold', fig.cap='Item response distributions, after reverse-scoring negatively worded items.', fig.scap=' '>>=
+<<simpleBarplots,echo=F, warning=FALSE, message=FALSE, include=T,eval=T,fig.width=7, fig.height=3.5, out.width='.99\\linewidth', fig.pos='h',fig.align='center',tidy=F, cache=TRUE, fig.show='hold', fig.cap='Item response distributions, after reverse-scoring negatively worded items.', fig.scap=' '>>=
 ggplot()+
   geom_bar(aes(x=centered, fill=polarity),
            color="black",data=tall_survey)+
