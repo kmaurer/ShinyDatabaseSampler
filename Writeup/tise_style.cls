@@ -64,7 +64,7 @@
 \newcommand{\Reviewauthor}[1]{\def\@Reviewauthor{#1}}
 %% defaults
 \author{Author [Blinded] \\ Affiliation [Blinded] }
-\title{A \texttt{shiny} Opportunity for Interaction with Big Data in Introductory Statistics}
+\title{A \texttt{shiny} Opportunity to Interact with Large Databases in Introductory Statistics}
 \Abstract{---!!!---an abstract is required---!!!---}
 \Plainauthor{\@author}
 \Volume{VV}
